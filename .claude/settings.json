@@ -1,0 +1,45 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-tool.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "(Write|Edit|MultiEdit)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/write-gate.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-read.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rm -f .session/locked-client.txt .session/loaded-sources.txt"
+          }
+        ]
+      }
+    ]
+  }
+}

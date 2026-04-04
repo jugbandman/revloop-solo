@@ -1,0 +1,30 @@
+# Session state (ephemeral, never commit)
+.session/
+
+# Onboarding state (local progress tracking)
+.onboarding
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+dist/
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Obsidian (local config, not vault structure)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/graph.json

@@ -1,0 +1,93 @@
+---
+type: context
+domain: icp
+updated: 2026-03-31
+source: example (genericised from initial client build)
+---
+# Ideal Customer Profile
+
+## Two Target Segments
+
+Acme Consulting sells to two distinct buyer types. Both need the same core capability (scaling AI adoption) but the entry point and messaging differ.
+
+### Segment 1: Enterprise AI Transformation Leaders (Direct)
+
+Decision-makers at large enterprises who are navigating AI adoption and hitting the "adoption wall," where pilots succeed but nothing scales.
+
+**Firmographics:**
+- Company size: 1,000+ employees (500-999 if strong transformation signals)
+- Revenue: $500M+
+- Industries: Technology, financial services, healthcare, manufacturing, professional services
+- Geography: US-based, open to global enterprises with US operations
+
+**Buyer Roles:**
+
+| Title Pattern | Seniority | Decision Authority |
+|---------------|-----------|-------------------|
+| VP/SVP/Chief of AI, Digital Transformation, Innovation | C-suite, VP | Budget holder, final decision |
+| Head of AI/ML, Chief Data Officer, Chief AI Officer | VP/Director | Technical buyer, strong influence |
+| VP of Learning & Development, Chief People Officer | VP | Champion for capability building |
+| Chief of Staff | Director+ | Often drives strategic initiatives behind the scenes |
+
+**Goals:**
+- Modernize how the organization works with AI (not just deploy tools)
+- Build internal AI capability that sustains beyond the pilot phase
+- Get leadership aligned on AI strategy before scaling
+- Prove ROI on AI investments to the board
+
+**Pain Points:**
+- "Pilot purgatory": successful experiments that never scale
+- Middle management resistance or bottleneck
+- No governance structure for responsible AI adoption
+- AI champions identified but no system to activate them
+- Competitors moving faster on AI maturity
+
+### Segment 2: Partner Channel (Indirect)
+
+Partners who already deliver transformation training to enterprises. They teach awareness-level AI courses but their clients hit a wall after training. The AI Lead Accelerator is what comes next.
+
+**Firmographics:**
+- Company type: Consulting firms, training organizations, transformation agencies
+- Size: 10-500 employees (boutique to mid-size consultancies)
+
+**Buyer Roles:**
+- Founder/CEO/President of consulting firm (they ARE the portfolio decision)
+- VP/Head of Sales, Business Development, Partnerships
+- Head of Training/Academy, Practice Lead
+
+**What Makes a Great Partner Lead:**
+- Already teaching AI awareness classes at volume
+- Actively building an AI consulting practice (not just checking a box)
+- Looking for the next offering to bring to their clients
+- Warm connection to the founder or GTM team
+
+## Qualification Criteria
+
+### Must Have (all segments)
+- [ ] Person is in a decision-making or strong-influence role (Director+)
+- [ ] Organization is actively engaged with AI (not just exploring someday)
+- [ ] Real problem related to AI transformation (not just curiosity)
+- [ ] Plausible budget for consulting/workshop investment ($5K+)
+
+### Strong Signals
+- Recent AI leadership hires or new AI-titled roles
+- Public AI initiatives, press releases, or conference talks about AI strategy
+- Active LinkedIn posting about AI transformation topics
+- Hiring for AI-related roles (especially organizational change, not just engineering)
+- Recently completed awareness-level AI course (partner segment)
+
+### Red Flags
+- Too junior (Manager, Analyst, Coordinator)
+- Company under 500 employees (unless partner segment)
+- Pure technology buyer with no organizational change mandate
+- "Just looking" with no timeline or urgency
+- Student, recruiter, or unrelated role in the data
+
+## Common Objections
+
+| Objection | Response Approach |
+|-----------|-------------------|
+| "We already have AI training" | "Training builds awareness. We build the organizational muscle to actually scale what people learn." |
+| "We're still in pilot phase" | "That's exactly when the operating model matters. Scaling pilots without governance is how companies stall." |
+| "Budget is locked for the year" | "Let's map the plan now so you're ready when budget opens. The prep work takes time anyway." |
+| "We need to see ROI first" | "The readiness diagnostic gives you a baseline. You'll know exactly where you stand before committing to a full engagement." |

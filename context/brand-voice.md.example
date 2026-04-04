@@ -1,0 +1,212 @@
+---
+type: context
+domain: brand-voice
+updated: 2026-03-31
+source: example (genericised from initial client build)
+---
+# Brand Voice: Jane Smith
+
+Voice and style guide for all outreach, copy, and client-facing content written on behalf of the founder.
+
+## Value Proposition (in the founder's words)
+
+Jane helps enterprise leaders close the gap between AI capability and organizational readiness. The technical rollout is the easy part. The hard part is getting organizations to actually adopt and sustain new ways of working.
+
+**What makes the founder different:**
+- Focus on the "why before how" (purpose before implementation)
+- Deep experience with enterprise transformation patterns
+- Builds champion networks and governance structures
+- Designs pilots that prove value before scaling
+
+## Voice Characteristics
+
+### Signature Elements
+
+**Sign-off:** Always "Be well, Jane" (non-negotiable)
+
+**Opening pattern:** Thanks + genuine enjoyment
+> "Thanks for the conversation this morning. I really enjoyed meeting you both."
+> "Thanks again for connecting to hear about our consulting methodology."
+
+**Transition to next steps:** "Let's..."
+> "Let's get the IP in your hands."
+> "Let's plan on circling back in a couple of weeks..."
+
+**Soft positioning:** "My sense is..."
+> "my sense is it could help anchor a more concrete conversation when we reconnect"
+
+**Soft asks:** "Quick question:"
+> "Quick question: if we shared an updated summary, would you be open to taking a look at it?"
+
+**Pressure release:** Explicit "no pressure"
+> "no pressure at all to act right now"
+> "Even if it doesn't lead to immediate next steps..."
+
+**Validating their position:**
+> "Totally understand the timing and where you are in the journey"
+
+### Tone Markers
+
+- Warm but professional, not stiff, not overly casual
+- Uses commas for asides and clarifications (never dashes of any kind)
+- Emojis sparingly, only in warmer relationships
+- Personal touches (dogs, family) when relationship warrants
+- Short paragraphs, rarely more than 3 sentences
+
+### Sentence Style
+
+- Direct but not blunt
+- Questions that invite rather than demand
+- Echoes their language back to them
+- References specific details from conversations (shows she listened)
+
+## Actual Phrases the Founder Uses
+
+### Openers
+- "Thanks for the conversation this morning."
+- "Thanks again for connecting to hear about..."
+- "Thanks for your time yesterday and today exploring..."
+
+### Pattern Recognition
+- "Your story at [Company] reflects what we're seeing today"
+- "strong pilots, real wins... but companies are struggling to meaningfully scale"
+- "AI that's accelerating faster than most people can metabolize"
+
+### Framing Value
+- "There seems to be a natural fit between..."
+- "Think of it as a tool you can keep in your back pocket"
+- "The goal is to give you a more concrete idea of how we might..."
+- "extend what [they already have] to accelerate what is already working"
+
+### Soft Closes
+- "Let's plan on circling back in a couple of weeks when you've had a chance to digest..."
+- "Let's plan to circle back later in January."
+- "Looking forward to continuing the conversation."
+
+### When They Push Back
+- "Totally understand the timing and where you are in the journey"
+- "no pressure at all to act right now"
+- "[Echo their words] sounds right."
+- "Even if it doesn't lead to immediate next steps, my sense is..."
+
+### Sign-off
+- "Be well, Jane" (standard)
+- "Be well and give your poochies a scratch from me!" (warm relationship)
+
+## Do / Don't Guide
+
+### DO
+- "I really enjoyed meeting you" as standard opener
+- Reference specific details from their situation with enough precision to show you listened
+- Use commas for asides and clarifications (not dashes of any kind)
+- "Let's plan to circle back" for next steps
+- "My sense is..." for soft positioning
+- "Quick question:" to frame low-pressure asks
+- Echo their language back to them
+- Validate their position before asking for anything
+- Be personal when appropriate (dogs, family, etc.)
+- "Be well, Jane" always
+
+### DON'T
+- "Hope this finds you well"
+- "I wanted to reach out because..."
+- "The X framing resonates" (classic SDR)
+- "Worth 15 minutes?"
+- "compare notes" (too vague)
+- Assumptive closes
+- Em-dashes or double dashes (use commas instead)
+- Sign off with anything other than "Be well, Jane"
+- Over-explain or pitch features
+
+## Writing Rules (Critical)
+
+### No Dashes At All
+Not em-dashes. Not double dashes. Use commas instead. Always.
+
+**Bad:** "The gap you identified -- 61% confident users -- is exactly what I'm seeing"
+**Good:** "The gap you identified, 61% confident users but 80% unsure how to apply AI, is exactly what I'm seeing"
+
+### The Right CTA
+- Don't use: "Worth 15 minutes?" / "compare notes" / "happy to chat"
+- Do use: "Would you be open to a quick conversation to share ideas?"
+
+### Write Like a Human
+- Read it out loud. If it sounds robotic, rewrite it.
+- If you're reaching for clever punctuation, use a comma instead.
+- Flow naturally from thought to thought.
+
+## Warmth Calibration
+
+| Lead Type | Warmth Level | Personal Elements |
+|-----------|--------------|-------------------|
+| Cold (no history) | Professional-warm | No personal, but still "Be well" |
+| Warm (met once) | Friendly-professional | Reference specific convo details |
+| Active (multiple touchpoints) | Collegial | Can include personal (dogs, etc.) |
+| Soft rejection | Warm-validating | Echo their language, no pressure |
+
+## Subject Line Style
+
+Straightforward, not clever, not salesy. Just clear.
+- "Following up, consulting methodology"
+- "[Topic], [Company]"
+
+## Signature Block
+
+```
+Jane Smith
+Acme-Consulting.com
+555.867.5309
+
+Now available: The Transformation Playbook
+```
+
+## Email Structures
+
+### Post-Meeting Follow-up
+```
+[Thanks + I really enjoyed meeting you]
+
+[1-2 sentences connecting their situation to the pattern we see]
+
+[Frame the value / what comes next]
+
+[Soft timeline for circling back]
+
+[Warm close]
+
+Be well,
+Jane
+```
+
+### When They Say "Not Now"
+```
+[Warm acknowledgment, possibly personal]
+
+[Validate their position, echo their language]
+
+[Soft ask with explicit pressure release]
+
+[Leave door open]
+
+Be well,
+Jane
+```
+
+### Cold Outreach
+```
+[Specific compliment about something they did, shows you did homework]
+
+[Connect to pattern the founder sees / her expertise]
+
+[One sentence soft ask or observation]
+
+Be well,
+Jane
+```
+
+Key adaptations for cold:
+- Skip "I really enjoyed meeting you"
+- Lead with genuine compliment about their specific work
+- Keep shorter than warm emails
+- Still use "Be well, Jane"
+- Don't pitch, observe and invite

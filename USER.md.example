@@ -1,0 +1,40 @@
+# USER.md
+
+Your identity file. Run `/get-started` to create this interactively, or copy this to `USER.md` and fill in manually.
+
+## Identity
+
+| Field | Value |
+|-------|-------|
+| Name | {add name} |
+| Email | {add email} |
+| Role | {add role} |
+| Company | {add company} |
+| Persona | {add: founder / sales-leader / sales-manager / ae} |
+| Mode | {add: solo / team} |
+
+## Autonomy
+
+What AI can do without asking:
+
+**Bot can do:**
+- Research prospects
+- Draft outreach
+- Update pipeline status
+- Create today.md
+- Process transcripts
+
+**Bot needs approval:**
+- Send emails
+- Move deal stages
+- Delete anything
+- Post to Slack
+
+## Preferences
+
+| Setting | Value |
+|---------|-------|
+| Planning style | {add: daily / weekly / both} |
+| Capture method | {add: keyboard / voice / both} |
+| CRM | {add: hubspot / attio / salesforce / none} |
+| Transcript tool | {add: granola / fireflies / gong / none} |

@@ -1,0 +1,141 @@
+---
+type: context
+domain: tool-stack
+updated: 2026-03-31
+source: example (genericised from initial client build)
+---
+# Tool Stack
+
+How each tool connects in the Acme Consulting GTM system.
+
+## Core Tools
+
+### Clay
+**Purpose:** Lead enrichment, signal detection, scoring, and outbound email sequencing.
+**Role in system:** The central hub for prospect data. Raw leads go in, enriched and scored leads come out. Also handles email campaign execution via Clay Sequencer.
+
+**What flows through Clay:**
+- Lead import (CSV from Sales Navigator, HubSpot, or manual entry)
+- AI enrichment (Claygent prompts for signal detection)
+- Lead scoring (multi-dimensional rubric)
+- Copy generation (founder-voice emails and LinkedIn messages)
+- QA validation (automated quality checks on generated copy)
+- Email sending (Clay Sequencer for automated cadence)
+
+**Key integration points:**
+- Imports from Sales Navigator exports and HubSpot
+- Sends emails via SMTP (founder@acme-consulting.com)
+- Exports to Google Sheets for analysis
+- Pairs with HeyReach for LinkedIn automation
+
+### HeyReach
+**Purpose:** LinkedIn automation (connection requests, DMs).
+**Role in system:** Executes LinkedIn outreach in parallel with email sequences from Clay. Tracks connection acceptance, replies, and profile views.
+
+**Integration with Clay:**
+- Pulls LinkedIn connection message text from Clay table
+- Reports engagement back (webhook or manual sync)
+- When LinkedIn engagement detected, Clay pauses email sequence
+
+### Sales Navigator
+**Purpose:** Prospect identification and list building.
+**Role in system:** Source of raw lead lists. Filtered by title, company size, seniority, and activity level before export to Clay.
+
+### HubSpot
+**Purpose:** CRM (historical). Some existing lead data lives here.
+**Role in system:** Legacy data source. Leads originally enriched here are migrated to Clay for active campaigns.
+
+### Google Sheets
+**Purpose:** Analysis, reporting, and sharing with the founder.
+**Role in system:** Secondary analysis layer. Weekly exports from Clay for pivot table analysis (which signals correlate with engagement, which angles work best).
+
+### Google Drive
+**Purpose:** Client deliverable sharing.
+**Role in system:** Finished deliverables (proposals, briefs, research summaries) are exported from this vault, cleaned, converted to DOCX, and placed in the shared Google Drive folder for the founder.
+
+### Obsidian (This Vault)
+**Purpose:** Source of truth for context, playbooks, and entity management.
+**Role in system:** All company knowledge, process documentation, and deal tracking lives here. Claude Code reads this vault before generating any outreach or deliverables.
+
+### Claude Code
+**Purpose:** AI assistant for research, content generation, and pipeline management.
+**Role in system:** Reads vault context, generates research briefs, writes outreach copy, scores leads, manages deal progression. Operates within the RevLoop framework.
+
+## Data Flow
+
+```
+Sales Navigator / HubSpot / Manual
+        |
+        v
+    Clay (import)
+        |
+        v
+    Clay (enrich via Claygent)
+    - AI Initiatives signal
+    - AI Leadership Hires signal
+    - AI Success Stories signal
+    - AI Partnerships signal
+        |
+        v
+    Clay (score + tier)
+    - Signal count, tier assignment
+    - Primary angle selection
+    - Research hook extraction
+        |
+        v
+    Clay (generate copy)
+    - LinkedIn connection request
+    - Email Step 1 (initial)
+    - Email Step 2 (follow-up)
+        |
+        v
+    Clay (QA validation)
+    - Dash check, sign-off check
+    - Banned phrase check
+    - Length and specificity check
+        |
+        +---> Clay Sequencer (email)
+        |         |
+        |         v
+        |     Prospect inbox
+        |
+        +---> HeyReach (LinkedIn)
+                  |
+                  v
+              LinkedIn
+```
+
+**Engagement loop:**
+- Reply or LinkedIn acceptance triggers handoff notification to the founder
+- Founder takes over conversation manually
+- Deal created in vault, tracked through deal stages
+
+## Email Infrastructure
+
+| Setting | Value |
+|---------|-------|
+| Sender | founder@acme-consulting.com |
+| Format | Plain text (HTML off) |
+| Schedule | Mon-Fri, 9am-5pm ET |
+| Daily limit | 20-30 sends |
+| Min between sends | 20 minutes |
+
+## Cost Considerations
+
+Clay credits are the primary variable cost. Enrichment prompts (Claygent) consume the most credits because they fetch external data.
+
+**Credit optimization:**
+- Run company-level enrichment (AI positioning scan) once per unique company, copy results to all contacts
+- Run person-level enrichment only on top-tier leads (score first with CSV data, then enrich A/B leads)
+- Pre-written copy uses minimal credits (0.1 per email send)
+
+## Tool Evaluation Notes
+
+| Tool | Status | Notes |
+|------|--------|-------|
+| Clay | Active | Core platform, heavy usage |
+| HeyReach | Active | LinkedIn automation |
+| Sales Navigator | Active | Lead sourcing |
+| HubSpot | Legacy | Data source only, not primary CRM |
+| Google Sheets | Active | Analysis and sharing |
+| Notion | Deprecated | Was used for tracking, replaced by vault |
