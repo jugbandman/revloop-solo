@@ -132,4 +132,6 @@ Content and research:
 
 ## Agents
 
-- `founder-voice` — Writes and reviews content in the founder's authentic voice
+- `my-voice` — Writes and reviews content in YOUR authentic voice (reads USER.md)
+- `researcher` — Deep company and contact research briefs
+- `sales-coach` — Reviews business cases, deal strategy, and champion-selling content

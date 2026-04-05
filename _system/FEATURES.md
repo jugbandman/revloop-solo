@@ -22,7 +22,27 @@ This vault ships with skills (manual commands) and agents. Start with `/get-star
 
 | Agent | What It Does | When to Use |
 |-------|-------------|-------------|
-| founder-voice | Writes and reviews content in the founder's authentic voice | Emails, LinkedIn posts, proposals, any external-facing copy |
+| my-voice | Writes and reviews content in YOUR authentic voice | Your emails, LinkedIn, proposals, any content that should sound like you |
+| client-voice | Writes content in the CLIENT's voice (team mode only) | Outbound on behalf of the client in managed deployments |
+| researcher | Deep company and contact research briefs | Pre-outreach, discovery prep, deal qualification |
+| sales-coach | Reviews business cases, deal strategy, champion-selling content | Deal reviews, pipeline strategy, messaging quality |
+
+## Templates (_templates/)
+
+| Template | What It's For |
+|----------|--------------|
+| 60-second-deal-review | Structured deal review: 3 headlines, buyer actions, health scores |
+| 1-page-business-case | Champion-ready business case: problem, approach, payoff, investment |
+| half-page-business-case | Compressed executive briefing version of the business case |
+| mutual-action-plan | Shared timeline with buyer: milestones, decision criteria, stakeholders |
+| executive-summary | One-page forwardable summary for executive decision-making |
+| meeting-followup | Post-meeting notes: takeaways, action items, follow-up email draft |
+| lead | Raw lead entity |
+| prospect | Enriched prospect entity with ICP fit and outreach history |
+| deal | Active deal with stakeholders, timeline, deliverables |
+| daily-brief | Daily priorities and pipeline snapshot |
+| transcript | Meeting transcript with summary and action items |
+| outreach-batch | Campaign sequence with messaging and results tracking |
 
 ## Hooks
 
