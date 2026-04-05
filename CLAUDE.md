@@ -121,6 +121,7 @@ Core daily operations:
 - `/get-started` — Progressive onboarding (run anytime to see what's next)
 - `/today` — Daily priorities from vault state
 - `/morning-brief` — Email + calendar + pipeline check
+- `/meeting-prep` — Calendar-aware meeting preparation (quick/standard/deep research)
 - `/sync-gh` — Git sync (commit, pull, push)
 - `/wip` — Save/resume work-in-progress
 - `/wrap` — End-of-task closure
@@ -129,9 +130,14 @@ Content and research:
 - `/icp-review` — Build or refine ICP
 - `/process-transcript` — Extract summary and action items from transcripts
 - `/export-deliverable` — Clean markdown for delivery
+- `/import-context` — Import materials, set up continuous data flows, detect vault gaps
 
 ## Agents
 
 - `my-voice` — Writes and reviews content in YOUR authentic voice (reads USER.md)
 - `researcher` — Deep company and contact research briefs
 - `sales-coach` — Reviews business cases, deal strategy, and champion-selling content
+
+### Auto-Loading
+
+When working with revenue templates (business case, mutual action plan, deal review, executive summary) or any deal strategy work, **automatically load the sales-coach agent** to help with messaging quality and strategic framing.

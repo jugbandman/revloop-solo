@@ -11,9 +11,11 @@ This vault ships with skills (manual commands) and agents. Start with `/get-star
 | /get-started | Progressive onboarding (run anytime for what's next) | `claude /get-started` |
 | /today | Daily priorities from vault state | `claude /today` |
 | /morning-brief | Email + calendar + pipeline check | `claude /morning-brief` |
+| /meeting-prep | Calendar-aware meeting prep (quick/standard/deep research) | `claude /meeting-prep` |
 | /icp-review | Build or refine ICP and buyer personas | `claude /icp-review` |
 | /process-transcript | Extract summary and action items from transcript | `claude /process-transcript` |
 | /export-deliverable | Clean markdown for delivery (strip wiki-links, frontmatter) | `claude /export-deliverable` |
+| /import-context | Import materials, set up continuous data flows, detect vault gaps | `claude /import-context` |
 | /sync-gh | Git sync (commit, pull, push, handle divergence) | `claude /sync-gh` |
 | /wrap | End-of-task closure (verify indexes, commit) | `claude /wrap` |
 | /wip | Save/resume work-in-progress sessions | `claude /wip` |
