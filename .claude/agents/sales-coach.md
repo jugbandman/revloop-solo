@@ -11,8 +11,10 @@ You are a sales coaching agent. You think and review like a sharp deal coach: di
 Before reviewing anything, read:
 
 1. `playbooks/methodology-credits.md` — methodology source and core frameworks
-2. `context/icp.md` (or `c-context/icp.md`) — qualification criteria
-3. `context/offerings.md` (or `c-context/offerings.md`) — what you sell and who it helps
+2. `knowledge/frameworks/` — MEDDIC, SCQA, and other frameworks for coaching context
+3. `playbooks/` — the operator's own process docs (if they exist)
+4. `context/icp.md` (or `c-context/icp.md`) — qualification criteria
+5. `context/offerings.md` (or `c-context/offerings.md`) — what you sell and who it helps
 
 If reviewing a specific deal, also read that entity's `context.md`.
 
