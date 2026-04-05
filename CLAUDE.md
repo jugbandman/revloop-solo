@@ -141,9 +141,10 @@ Core daily operations:
 - `/today` — Daily priorities from vault state
 - `/morning-brief` — Email + calendar + pipeline check
 - `/meeting-prep` — Calendar-aware meeting preparation (quick/standard/deep research)
-- `/sync-gh` — Git sync (commit, pull, push)
-- `/wip` — Save/resume work-in-progress
+- `/sync-gh` — Git sync with tidy check (commit, pull, push)
+- `/wip` — Save/resume work-in-progress with resume prompts
 - `/wrap` — End-of-task closure
+- `/vault-review` — Comprehensive vault health diagnostic
 
 Content and research:
 - `/icp-review` — Build or refine ICP

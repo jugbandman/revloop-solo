@@ -16,9 +16,10 @@ This vault ships with skills (manual commands) and agents. Start with `/get-star
 | /process-transcript | Extract summary and action items from transcript | `claude /process-transcript` |
 | /export-deliverable | Clean markdown for delivery (strip wiki-links, frontmatter) | `claude /export-deliverable` |
 | /import-context | Import materials, set up continuous data flows, detect vault gaps | `claude /import-context` |
-| /sync-gh | Git sync (commit, pull, push, handle divergence) | `claude /sync-gh` |
+| /sync-gh | Git sync with tidy check (commit, pull, push, handle divergence) | `claude /sync-gh` |
 | /wrap | End-of-task closure (verify indexes, commit) | `claude /wrap` |
-| /wip | Save/resume work-in-progress sessions | `claude /wip` |
+| /wip | Save/resume work-in-progress with resume prompts | `claude /wip` |
+| /vault-review | Comprehensive vault health diagnostic (stale entities, broken links, drift) | `claude /vault-review` |
 
 ## Agents (Claude Code)
 

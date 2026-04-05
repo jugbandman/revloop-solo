@@ -16,7 +16,7 @@
 | Automation | Mode | Last Run | Status |
 |------------|------|----------|--------|
 | Morning brief | Manual | Never | Not started |
-| Vault health check | Manual | Never | Not started |
+| Vault health check (/vault-review) | Manual | Never | Not started |
 | Git sync | Manual | Never | Not started |
 | Transcript processing | Manual | Never | Not started |
 
