@@ -72,9 +72,24 @@ If this is a sales-related call, analyze:
 Save the processed transcript to:
 - `meetings/YYYY-MM-DD-{company}-{meeting-type}.md`
 
-If tied to an entity, also:
-- Update the entity's context.md with new insights
-- Link the transcript note from the entity's context
+If tied to an entity, check whether the entity folder exists:
+
+**Entity folder exists:**
+- Update `context.md` with new insights from this meeting
+- For any new contacts not yet in the folder, create `{firstname-lastname}.md` using `_templates/prospect.md`, populated with what is known from the transcript
+- Link the transcript note from the entity's `context.md`
+
+**Entity folder does not exist:**
+- Determine correct stage from context (leads vs. prospects vs. deals)
+- Create the entity folder under the appropriate pipeline stage
+- Create `context.md` using `_templates/context.md`, populating company info, source (transcript), pain points, and initial signals from the transcript
+- Create `{firstname-lastname}.md` for each contact on the call using `_templates/prospect.md`
+- Link the transcript from the new `context.md`
+
+**People file rules:**
+- Person files live inside the entity subfolder, not in a separate directory
+- File naming: `{firstname-lastname}.md` in lowercase-kebab-case
+- Leave enrichment fields as `{add value}` placeholders — do not fabricate
 
 ### 6. Suggest Next Actions
 
