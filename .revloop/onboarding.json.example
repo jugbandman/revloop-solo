@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "started": null,
+  "mode": "solo",
+  "level": 0,
+  "milestones": {
+    "identity": { "done": false },
+    "voice": { "done": false },
+    "business_context": { "done": false },
+    "transcripts_connected": { "done": false },
+    "first_deal": { "done": false },
+    "knowledge_curated": { "done": false }
+  },
+  "skipped": [],
+  "connections": {
+    "granola": { "status": "unknown" },
+    "gmail": { "status": "unknown" },
+    "calendar": { "status": "unknown" }
+  }
+}

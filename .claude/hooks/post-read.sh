@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # post-read.sh — tracks loaded source files for write gate enforcement
 #
 # Runs after every successful Read. Logs the basename, full path, and
-# relative path so ROOT-INDEX.md and entity context.md can match either form.
+# relative path so the sacred-sources list can match either form.
+#
+# Graceful degradation: no-op if not running under Claude Code.
+
+if [ -z "$CLAUDE_PROJECT_DIR" ] && [ -z "$CLAUDE_CODE_SESSION" ]; then
+  exit 0
+fi
 
 TOOL_INPUT=$(cat)
 VAULT_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -28,7 +34,7 @@ fi
 # Ensure session directory exists
 mkdir -p "$SESSION_DIR"
 
-# Log basename (for ROOT-INDEX matching) and full + relative path (for entity matching)
+# Log basename (for sacred-sources matching) and full + relative path
 BASENAME=$(basename "$FILE_PATH")
 REL_PATH="${FILE_PATH#$VAULT_ROOT/}"
 

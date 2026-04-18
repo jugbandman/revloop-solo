@@ -1,0 +1,30 @@
+{
+  "_comment": "Copy entries from mcpServers below into .mcp.json and set the referenced env vars to enable. Remove the underscore-comment keys once copied.",
+  "mcpServers": {
+    "granola": {
+      "_comment": "Granola meeting transcripts. Used by /connect-transcripts and /transcript-sync. Requires Granola desktop app installed (reads local Supabase creds).",
+      "command": "npx",
+      "args": ["-y", "granola-mcp"]
+    },
+    "gmail": {
+      "_comment": "Gmail. Used by /morning-brief and /capture-voice (auto-harvest writing samples from Sent folder).",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-gmail"],
+      "env": {
+        "GMAIL_CLIENT_ID": "${GMAIL_CLIENT_ID}",
+        "GMAIL_CLIENT_SECRET": "${GMAIL_CLIENT_SECRET}",
+        "GMAIL_REFRESH_TOKEN": "${GMAIL_REFRESH_TOKEN}"
+      }
+    },
+    "google-calendar": {
+      "_comment": "Google Calendar. Used by /morning-brief and /meeting-prep (pull today's events and attendee context).",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-google-calendar"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "${GOOGLE_CLIENT_ID}",
+        "GOOGLE_CLIENT_SECRET": "${GOOGLE_CLIENT_SECRET}",
+        "GOOGLE_REFRESH_TOKEN": "${GOOGLE_REFRESH_TOKEN}"
+      }
+    }
+  }
+}

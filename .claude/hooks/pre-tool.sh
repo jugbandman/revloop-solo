@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # pre-tool.sh — session lock on first file access (vault-level)
 #
 # Locks session on first file access inside the vault, ensuring
 # .session/ state is initialized for the write gate and source tracker.
+#
+# Graceful degradation: no-op if not running under Claude Code.
+
+if [ -z "$CLAUDE_PROJECT_DIR" ] && [ -z "$CLAUDE_CODE_SESSION" ]; then
+  exit 0
+fi
 
 TOOL_INPUT=$(cat)
 VAULT_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"

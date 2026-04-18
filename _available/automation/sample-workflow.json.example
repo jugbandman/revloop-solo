@@ -1,0 +1,98 @@
+{
+  "name": "Lead Sync - Sample",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-sync",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and validate the incoming lead data\nconst input = $input.first().json;\n\nconst lead = {\n  name: input.name || '',\n  company: input.company || 'unknown',\n  title: input.title || '',\n  email: input.email || '',\n  linkedin: input.linkedin || '',\n  source: input.source || 'n8n-webhook'\n};\n\n// Validate: name is required\nif (!lead.name.trim()) {\n  throw new Error('Lead name is required');\n}\n\nreturn [{ json: lead }];"
+      },
+      "id": "parse-payload",
+      "name": "Parse Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "command": "={{ 'cd /path/to/your/vault && echo \"name,company,title,email,linkedin,source\" > /tmp/n8n-lead.csv && echo \"' + $json.name.replace(/\"/g, '\\\\\"') + ',' + $json.company.replace(/\"/g, '\\\\\"') + ',' + $json.title.replace(/\"/g, '\\\\\"') + ',' + $json.email + ',' + $json.linkedin + ',' + $json.source + '\" >> /tmp/n8n-lead.csv && python3 _scripts/ingest-leads.py /tmp/n8n-lead.csv && rm /tmp/n8n-lead.csv' }}"
+      },
+      "id": "execute-ingest",
+      "name": "Run Ingest Script",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [690, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.first().json;\nconst stdout = output.stdout || '';\nconst stderr = output.stderr || '';\nconst exitCode = output.exitCode || 0;\n\nconst success = exitCode === 0 && !stderr.includes('Error');\n\nreturn [{\n  json: {\n    success: success,\n    message: success ? 'Lead ingested successfully' : 'Lead ingestion failed',\n    details: stdout.trim(),\n    errors: stderr.trim() || null\n  }\n}];"
+      },
+      "id": "format-response",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [910, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Payload": {
+      "main": [
+        [
+          {
+            "node": "Run Ingest Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Ingest Script": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "sample"
+    },
+    {
+      "name": "leads"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-01T00:00:00.000Z",
+  "versionId": "1"
+}

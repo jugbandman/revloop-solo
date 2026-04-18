@@ -1,16 +1,51 @@
-# CLAUDE.md
+# CLAUDE.md — boot protocol
 
-Strategic brain for this RevLoop Solo vault. Read on every session boot.
+Read on every session. This file is the entry point for any AI surface (Claude Code, Claude Desktop cowork, plain-editor pair work).
 
-## Identity
+## Boot sequence
 
-Read `USER.md` for who you're working with. It has identity, persona, autonomy settings, and preferences.
+1. **Read `USER.md`.** If missing or still matching `USER.md.example`, tell the user *"This vault isn't set up yet. Run `/start` (Claude Code) or paste the starter prompt from `DESKTOP-GUIDE.md` (Claude Desktop cowork) to begin."* Then stop.
+2. **Read `.revloop/onboarding.json`.** If missing, create it with `level: 0` and all milestones `done: false`. Tell the user: *"Next up: identity. Run `/start`."*
+3. **Branch on `onboarding.level`.**
+   - `0` identity missing → *"Next up: identity. Run `/start`."*
+   - `1` voice missing → *"Next up: voice calibration. Run `/start` or `/capture-voice`."*
+   - `2` business context missing → *"Next up: business context. Run `/start` or `/capture-business`."*
+   - `3` transcripts not connected → *"Next up: transcripts. Run `/start` or `/connect-transcripts`."*
+   - `4` first deal not tracked → *"Next up: track a real prospect. Run `/start` or `/prospect-research`."*
+   - `5` knowledge not curated → *"Next up: knowledge review. Run `/start` or `/import-context`."*
+   - `6+` fully onboarded → run `/today` and suggest one improvement.
 
-**If USER.md is missing or the Identity section is empty, run `/get-started` before doing anything else.**
+   Print one line only, then proceed with the user's actual request. Never block.
 
-### Persona Awareness
+## Three execution surfaces
 
-The user's persona (from USER.md) changes how you prioritize and communicate:
+This vault runs on three surfaces. Work correctly in each.
+
+| Surface | What works | What doesn't | Fallback |
+|---|---|---|---|
+| **Claude Code** | Hooks, slash commands, full fidelity | — | — |
+| **Claude Desktop cowork** | File access, agentic flows | Hooks, slash commands | Follow sacred-sources checklist manually; use `DESKTOP-GUIDE.md` starter prompt |
+| **Plain editor (Obsidian, VS Code)** | Markdown rendering, manual workflow | Automation | Use this file + `_system/` docs as the playbook |
+
+Detect the surface by checking env: if `$CLAUDE_PROJECT_DIR` or `$CLAUDE_CODE_SESSION` is set → Claude Code. Otherwise assume cowork or plain editor.
+
+## Sacred sources — the write gate
+
+Before generating any outbound copy, deliverable, or entity write, confirm these files are loaded this session:
+
+- [ ] `USER.md` (operator identity)
+- [ ] `context/positioning.md`
+- [ ] `context/icp.md`
+- [ ] `context/brand-voice.md`
+
+**In Claude Code** `.claude/hooks/write-gate.sh` enforces this mechanically.
+**In Claude Desktop cowork / plain editor** you (the AI) enforce this by reading the four files first. Don't skip.
+
+If any sacred source doesn't exist yet, run the appropriate milestone skill first: `/start` → `/capture-business` → `/capture-voice`.
+
+## Identity and persona awareness
+
+Read `USER.md` for who you're working with. It has identity, persona, autonomy settings, and preferences. Persona (from USER.md) changes how you prioritize and communicate:
 
 | Persona | Primary focus | Tone |
 |---------|--------------|------|
@@ -19,106 +54,42 @@ The user's persona (from USER.md) changes how you prioritize and communicate:
 | **Sales Manager** | Deal coaching, rep development | Tactical coaching, pattern recognition across deals |
 | **AE** | Deal execution, prospecting, pipeline | Prep + follow-through, never let a thread drop |
 
-## System Awareness
+## Path map
 
-**Sacred (never auto-edit):** `CLAUDE.md`, `USER.md`, `_system/`, `_templates/`
+| Concern | Path |
+|---|---|
+| Operator identity / voice | `USER.md` |
+| Positioning, ICP, offerings, voice, competitors | `context/` |
+| Prospects, deals, closed, customers | `pipeline/` |
+| People / stakeholders | `people/` |
+| Meeting transcripts + notes | `meetings/` |
+| Your process and playbooks | `playbooks/` |
+| Reference material (frameworks, articles) | `knowledge/` |
+| WIP scratch | `scratch/` |
+| Drop zone for bulk imports | `_imports/` |
+| Vault self-awareness | `_system/` |
+| Note templates (sacred) | `_templates/` |
+| Opt-in features (move to `.claude/skills/` to enable) | `_available/` |
+| Onboarding state machine | `.revloop/onboarding.json` (gitignored, per-operator) |
 
-**Self-documentation:** `_system/FEATURES.md` (skills/agents), `_system/health.md` (status), `_system/ROADMAP.md` (plan)
+## Sacred — never auto-edit
 
-**Navigation:** `++HOME/++HOME.md` is the master navigation hub. `++HOME/Recent Work.md` tracks session outputs.
+`CLAUDE.md`, `USER.md`, `_system/`, `_templates/`, `.claude/`, `.revloop/onboarding.json`. Suggest changes, never make them silently.
 
-## Context
+## Tool priority (optional Obsidian CLI)
 
-Context files live in `context/`. These expand on your identity:
+If Obsidian is open and the Obsidian CLI is installed (v1.12.7+), use it for vault-aware operations. If not, fall back to filesystem tools cleanly.
 
-- `positioning.md` — company positioning and differentiators
-- `icp.md` — ideal customer profile and buyer personas
-- `brand-voice.md` — writing style, tone, do/don't rules
-- `offerings.md` — products/services and when to reference them
-- `competitors.md` — competitive landscape and objection handling
-- `tool-stack.md` — tools in use and how they connect
+| Operation | Prefer |
+|-----------|--------|
+| Check backlinks before moving/renaming | `Obsidian backlinks path=<path>` (or filesystem grep) |
+| Vault-wide search | `Obsidian search query=<text>` (or Grep) |
+| Find orphan / broken wikilinks | `Obsidian orphans` / `Obsidian unresolved` (optional) |
+| Graph queries | `Obsidian eval code="..."` (optional) |
+| Create / read / edit a file | Filesystem Write / Read / Edit |
+| Search file content | Filesystem Grep |
 
-Copy from `.example` files to initialize. Not all are needed on day 1. Run `/get-started` anytime to see what to set up next.
-
-## Knowledge and Playbooks
-
-Two folders for methodology and reference material:
-
-**`playbooks/`** — YOUR process. How you run discovery, your deal stages, your outreach cadence. See `playbooks/_index.md`.
-
-**`knowledge/`** — Reference material you've collected. Frameworks, articles, posts, guidance. See `knowledge/_index.md`.
-
-| Folder | What Goes There |
-|--------|----------------|
-| `knowledge/frameworks/` | Sales methodologies (MEDDIC, SCQA, etc.) |
-| `knowledge/prospecting/` | Outbound tactics, research methods |
-| `knowledge/deal-execution/` | Negotiation, proposals, closing |
-| `knowledge/coaching/` | Development frameworks, performance |
-| `knowledge/articles/` | Saved articles and blog posts |
-| `knowledge/posts/` | LinkedIn posts and social content |
-
-The sales-coach agent reads both when coaching. Run `/import-context` to detect gaps and import materials.
-
-## Write Gate
-
-Before generating any outbound copy or deliverable, load these required sources:
-
-1. `USER.md`
-2. `context/positioning.md`
-3. `context/icp.md`
-4. `context/brand-voice.md`
-5. Relevant entity `context.md` (if writing for a specific person/company)
-
-The write gate hook enforces this mechanically.
-
-## Folder Map
-
-```
-revloop-solo/
-├── ++HOME/               # Navigation hub + Recent Work tracker
-├── CLAUDE.md             # This file (strategic brain)
-├── USER.md               # Your identity and preferences
-├── today.md              # Daily operating file (created by /today or /get-started)
-├── context/              # Company context (positioning, ICP, voice)
-├── pipeline/             # Deals, prospects, closed
-│   ├── prospects/        # Enriched, in conversation
-│   ├── deals/            # Proposal sent or meeting booked
-│   └── closed/           # Won or lost (with re-engagement criteria)
-├── people/               # Contacts, stakeholders
-├── meetings/             # Meeting notes and transcripts
-├── playbooks/            # Sales process, frameworks
-├── scratch/              # Brain dumps, quick captures
-├── _imports/             # Drop zone for docs, transcripts, CSVs
-├── _system/              # Vault self-awareness
-└── _templates/           # Note templates (never modify)
-```
-
-### Folder Rules
-
-**Pipeline:** `pipeline/prospects/` = enriched, in conversation. `pipeline/deals/` = proposal sent or meeting booked. `pipeline/closed/` = won or lost.
-
-**People:** Contacts and stakeholders live in `people/`. People attached to prospects/deals can also live in their entity subfolder.
-
-**Content:** `meetings/` for all meeting notes and transcripts. `scratch/` for brain dumps and WIP. Move to deliverables when finalized.
-
-**Imports:** `_imports/` is a drop zone. Put files there and they'll be routed:
-- Transcripts → `meetings/`
-- CSVs → `pipeline/` (leads or prospects)
-- Documents → `context/`
-- Pitch decks, brand guides → `context/`
-
-## Entity Lifecycle
-
-```
-pipeline/prospects/ → pipeline/deals/ → pipeline/closed/
-```
-
-Each entity gets a subfolder with a `context.md`. Read it before writing for that entity.
-
-**Promotion rules:**
-- **Prospect → Deal:** Meeting booked or proposal sent
-- **Deal → Closed:** Contract signed (won) or documented loss with re-engagement criteria
-- **Closed-Lost → Prospect:** When re-engagement criteria met, move back with updated context
+**Obsidian is not required.** The vault works in VS Code, Cursor, vim, or any plain-markdown editor. Obsidian and its CLI are optional enhancers.
 
 ## Rules
 
@@ -130,67 +101,64 @@ Each entity gets a subfolder with a `context.md`. Read it before writing for tha
 
 **File naming:** Deliverables follow `YYYY-MM-DD-[type]-[description].md`. Entities use lowercase-kebab-case. Context files are always `context.md` in entity subfolders.
 
-**Git:** Everything commits. No gitignored content layers. Commit WIP before large sessions. Commit + push when done. Format: `[Type]: [Description]`.
+**Git:** Optional. If the operator uses Git, commit WIP before large sessions and on wrap. Not required for onboarding or daily work.
 
 ## Skills
 
-Run these with `/skill-name` in Claude Code. See `_system/FEATURES.md` for the full catalog.
+Run with `/skill-name` in Claude Code. See `_system/FEATURES.md` for the full catalog.
 
-Core daily operations:
-- `/get-started` — Progressive onboarding (run anytime to see what's next)
+**Milestone skills (the self-onboarding spine):**
+- `/start` — Continuous router. Picks up wherever the vault left off.
+- `/capture-voice` — Calibrate authentic voice → `context/brand-voice.md`
+- `/capture-business` — Positioning, offerings, ICP, competitors → `context/*.md`
+- `/connect-transcripts` — Wire Granola or paste-to-inbox for meeting transcripts
+
+**Daily operations:**
+- `/get-started` — Legacy onboarding advisor (delegates to `/start` when state exists)
 - `/today` — Daily priorities from vault state
 - `/morning-brief` — Email + calendar + pipeline check
-- `/meeting-prep` — Calendar-aware meeting preparation (quick/standard/deep research)
-- `/sync-gh` — Git sync with tidy check (commit, pull, push)
-- `/wip` — Save/resume work-in-progress with resume prompts
+- `/meeting-prep` — Calendar-aware meeting preparation
+- `/sync-gh` — Git sync (optional; only if operator uses Git)
+- `/wip` — Save/resume work-in-progress
 - `/wrap` — End-of-task closure
-- `/vault-review` — Comprehensive vault health diagnostic
+- `/vault-review` — Health diagnostic
 
-Content and research:
-- `/icp-review` — Build or refine ICP
-- `/process-transcript` — Extract summary and action items from transcripts
-- `/export-deliverable` — Clean markdown for delivery
-- `/import-context` — Import materials, set up continuous data flows, detect vault gaps
+**Content and research:**
+- `/icp-review`, `/process-transcript`, `/transcript-sync`, `/export-deliverable`, `/import-context`
 
 ## Agents
 
-- `my-voice` — Writes and reviews content in YOUR authentic voice (reads USER.md)
-- `researcher` — Deep company and contact research briefs
-- `sales-coach` — Reviews business cases, deal strategy, and champion-selling content
+- `my-voice` — Writes/reviews in your authentic voice (reads USER.md + `context/brand-voice.md`)
+- `researcher` — Deep company / contact research
+- `sales-coach` — Reviews business cases, deal strategy, champion-selling
+- `deal-researcher` — Deal-specific research; pulls transcript history + pipeline context
 
-### Auto-Loading
+## Opt-in features (`_available/`)
 
-When working with revenue templates (business case, mutual action plan, deal review, executive summary) or any deal strategy work, **automatically load the sales-coach agent** to help with messaging quality and strategic framing.
+Additional skills, enrichment scripts, automations, and dashboards live in `_available/`. Each subfolder has a README explaining what it does and how to enable it. Ship lean; grow as the operator needs more.
 
-## Vault Evolution
+## Vault evolution
 
-This vault is a living system. Help the operator build, maintain, and improve it over time.
+This vault is a living system. Help the operator build, maintain, and improve it over time. Never modify agents, CLAUDE.md, skills, hooks, or `_system/` files without explicit approval. Suggest improvements, don't silently make them.
 
-**Ask before changing guidance.** Never modify agents, CLAUDE.md, skills, hooks, or _system/ files without explicit approval. Suggest improvements, don't silently make them.
-
-**Proactive awareness:** Notice when something is missing or could be better. Flag it, don't fix it without asking.
+Proactive awareness:
 - Empty folders that should have content → suggest `/import-context`
 - Stale entities (not updated in 14+ days) → surface in `/today`
-- Missing context files (no ICP, no positioning) → flag during outbound work
-- Playbooks folder empty → suggest documenting after a successful process
-- Knowledge folder empty → suggest saving frameworks after coaching
+- Missing sacred sources → flag before outbound work (hook or AI-enforced)
 - Unprocessed files in `_imports/` → offer to route them
 
-**After every session:** Suggest improvements, don't impose them:
-- "You've run 5 discovery calls without a discovery playbook. Want to document your process?"
-- "Your pipeline has deals but no ICP. Want to run /icp-review?"
-- "That framework you just described would be useful saved in knowledge/frameworks/"
-
-**Logging:** All changes to vault structure, agents, skills, and system files must be logged:
+Logging:
 - Update `++HOME/Recent Work.md` with deliverables and system changes each session
 - Update `_system/health.md` when setup or automation status changes
 - Update `_system/FEATURES.md` when skills or agents are added/modified
 - Log significant changes in commit messages with `[system]` prefix
 
-**Maintenance:** Keep navigation current:
-- `++HOME/++HOME.md` reflects actual vault structure
-- `++HOME/Recent Work.md` tracks session outputs
-- `_system/` is the vault's self-awareness (features, health, roadmap, contributors)
-- Index files (`_index.md`) stay accurate as folders grow
+## Full deep dives
 
-**Growth pattern:** The vault should get more valuable every week. New entities, refined context, accumulated knowledge, documented processes.
+- `_system/self-onboarding-architecture.md` — the DNA of this template
+- `_system/milestone-skill-contract.md` — how milestone skills interoperate with `.revloop/onboarding.json`
+- `_system/FEATURES.md` — full feature catalog
+- `_system/health.md` — setup checklist + automation status
+- `_system/fork-this-vault.md` — how to fork this as YOUR template
+- `_system/architecture-decisions/` — ADRs explaining why things are the way they are
+- `DESKTOP-GUIDE.md` — for operators using Claude Desktop cowork

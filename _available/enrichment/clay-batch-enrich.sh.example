@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+#
+# clay-batch-enrich.sh - One-command enrichment pipeline.
+#
+# Checks dependencies, starts the Clay webhook tunnel, runs enrichment,
+# promotes newly-enriched leads, and updates the dashboard.
+#
+# Usage:
+#   bash clay-batch-enrich.sh
+#   bash clay-batch-enrich.sh --dry-run
+#   bash clay-batch-enrich.sh --limit 10
+#   bash clay-batch-enrich.sh --table custom-table
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VAULT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+
+# Defaults
+DRY_RUN=""
+LIMIT=""
+TABLE="lead-enrichment"
+TUNNEL_PID=""
+
+# Parse arguments (pass through to clay-enrich.py)
+ENRICH_ARGS=()
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run)
+            DRY_RUN="--dry-run"
+            ENRICH_ARGS+=("--dry-run")
+            ;;
+        --limit)
+            ENRICH_ARGS+=("--limit")
+            ;;
+        --table)
+            ENRICH_ARGS+=("--table")
+            ;;
+        *)
+            ENRICH_ARGS+=("$arg")
+            ;;
+    esac
+done
+
+cleanup() {
+    if [ -n "$TUNNEL_PID" ] && kill -0 "$TUNNEL_PID" 2>/dev/null; then
+        echo ""
+        echo "[cleanup] Stopping cloudflared tunnel (PID $TUNNEL_PID)..."
+        kill "$TUNNEL_PID" 2>/dev/null || true
+        wait "$TUNNEL_PID" 2>/dev/null || true
+        echo "[cleanup] Tunnel stopped."
+    fi
+}
+trap cleanup EXIT
+
+echo "============================================"
+echo "  Clay Batch Enrichment Pipeline"
+echo "============================================"
+echo "Vault: $VAULT_ROOT"
+echo ""
+
+# Step 1: Check clay-gtm-cli
+echo "[1/7] Checking clay-gtm-cli..."
+if ! command -v clay &>/dev/null; then
+    echo "ERROR: clay-gtm-cli is not installed."
+    echo "Install with: npm i -g clay-gtm-cli"
+    echo "Then run: clay auth login"
+    exit 1
+fi
+echo "  OK: $(clay --version 2>/dev/null || echo 'installed')"
+
+# Step 2: Check cloudflared
+echo "[2/7] Checking cloudflared..."
+if ! command -v cloudflared &>/dev/null; then
+    echo "ERROR: cloudflared is not installed."
+    echo "Install with: brew install cloudflared"
+    exit 1
+fi
+echo "  OK: $(cloudflared --version 2>/dev/null | head -1 || echo 'installed')"
+
+# Step 3: Start Clay webhook tunnel (skip in dry-run mode)
+echo "[3/7] Starting Clay webhook tunnel..."
+if [ -n "$DRY_RUN" ]; then
+    echo "  SKIP (dry-run mode, no tunnel needed)"
+else
+    # Start clay listen in the background. This wraps cloudflared
+    # to create a temporary tunnel for webhook callbacks.
+    clay listen --port 8765 &
+    TUNNEL_PID=$!
+    echo "  Tunnel started (PID $TUNNEL_PID), waiting for it to initialize..."
+    sleep 3
+
+    # Verify it's still running
+    if ! kill -0 "$TUNNEL_PID" 2>/dev/null; then
+        echo "  WARNING: Tunnel process exited. Continuing without tunnel."
+        echo "  (Enrichment will use --wait mode, which does not need a tunnel.)"
+        TUNNEL_PID=""
+    else
+        echo "  OK: Tunnel running"
+    fi
+fi
+
+# Step 4: Run enrichment
+echo "[4/7] Running Clay enrichment..."
+echo ""
+python3 "$SCRIPT_DIR/clay-enrich.py" --vault-root "$VAULT_ROOT" "${ENRICH_ARGS[@]}"
+ENRICH_EXIT=$?
+echo ""
+
+if [ $ENRICH_EXIT -ne 0 ]; then
+    echo "WARNING: Enrichment exited with code $ENRICH_EXIT"
+fi
+
+# Step 5: Promote newly-enriched leads
+echo "[5/7] Promoting enriched leads..."
+if [ -f "$SCRIPT_DIR/promote-leads.py" ]; then
+    if [ -n "$DRY_RUN" ]; then
+        python3 "$SCRIPT_DIR/promote-leads.py" --dry-run
+    else
+        python3 "$SCRIPT_DIR/promote-leads.py"
+    fi
+else
+    echo "  SKIP: promote-leads.py not found (optional)"
+fi
+echo ""
+
+# Step 6: Update dashboard data
+echo "[6/7] Updating dashboard data..."
+if [ -f "$SCRIPT_DIR/export-dashboard-data.py" ]; then
+    if [ -n "$DRY_RUN" ]; then
+        python3 "$SCRIPT_DIR/export-dashboard-data.py" --dry-run
+    else
+        python3 "$SCRIPT_DIR/export-dashboard-data.py"
+    fi
+else
+    echo "  SKIP: export-dashboard-data.py not found (optional)"
+fi
+echo ""
+
+# Step 7: Summary
+echo "[7/7] Done."
+echo ""
+echo "============================================"
+echo "  Pipeline Complete"
+echo "============================================"
+if [ -n "$DRY_RUN" ]; then
+    echo "  Mode: DRY RUN (no changes made)"
+else
+    echo "  Mode: LIVE"
+fi
+echo ""
+echo "Next steps:"
+echo "  - Review enriched leads in pipeline/leads/ and pipeline/prospects/"
+echo "  - Check logs/ for any errors"
+echo "  - Open the dashboard to see updated pipeline data"
+echo ""

@@ -1,5 +1,11 @@
 # /get-started
 
+## Delegation check
+
+If `.revloop/onboarding.json` exists, delegate immediately to `/start` — it is the authoritative router once the state machine is initialized. Return to this skill only when `/start` hands back control.
+
+---
+
 Progressive onboarding advisor. Run anytime. Detects vault state and adapts.
 
 **Token strategy:** Mode detection and routing are lightweight (inline). Heavy scanning delegates to Haiku. Maturity assessment uses Sonnet.

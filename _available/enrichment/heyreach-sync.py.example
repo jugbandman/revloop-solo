@@ -1,0 +1,360 @@
+#!/usr/bin/env python3
+"""
+heyreach-sync.py - Sync HeyReach campaign data back into vault prospect files.
+
+Shells out to heyreach-cli to fetch campaign and lead data, then matches
+leads to prospect files by LinkedIn URL (or name+company fallback) and
+updates frontmatter with campaign status.
+
+Configuration:
+    Set HEYREACH_API_KEY environment variable before running.
+    Or pass --api-key on the command line.
+
+Usage:
+    python3 heyreach-sync.py
+    python3 heyreach-sync.py --dry-run
+    python3 heyreach-sync.py --campaign "Q2 Outreach"
+"""
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+from datetime import date
+from pathlib import Path
+
+
+TODAY = date.today().isoformat()
+
+# Set your HeyReach API key as an environment variable:
+#   export HEYREACH_API_KEY="${YOUR_HEYREACH_API_KEY}"
+HEYREACH_API_KEY = os.environ.get("HEYREACH_API_KEY", "${YOUR_HEYREACH_API_KEY}")
+
+# Valid HeyReach statuses mapped to our frontmatter values
+STATUS_MAP = {
+    "pending": "pending",
+    "sent": "pending",
+    "connected": "connected",
+    "replied": "replied",
+    "meeting_booked": "meeting-booked",
+    "meeting-booked": "meeting-booked",
+    "accepted": "connected",
+}
+
+
+def run_cli(args: list[str]) -> dict | list | None:
+    """
+    Run a heyreach-cli command and parse JSON output.
+    Returns parsed JSON or None on failure.
+    """
+    try:
+        result = subprocess.run(
+            args,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except FileNotFoundError:
+        print("Error: heyreach-cli not found. Install it and run heyreach auth login.", file=sys.stderr)
+        sys.exit(1)
+    except subprocess.TimeoutExpired:
+        print(f"Error: command timed out: {' '.join(args)}", file=sys.stderr)
+        return None
+
+    if result.returncode != 0:
+        print(f"Error running {' '.join(args)}: {result.stderr.strip()}", file=sys.stderr)
+        return None
+
+    try:
+        return json.loads(result.stdout)
+    except json.JSONDecodeError:
+        print(f"Error: invalid JSON from {' '.join(args)}", file=sys.stderr)
+        return None
+
+
+def get_campaigns() -> list[dict]:
+    """Fetch all campaigns from HeyReach."""
+    data = run_cli(["heyreach", "campaigns", "list", "--json"])
+    if data is None:
+        return []
+    if isinstance(data, dict):
+        return data.get("campaigns", data.get("items", [data]))
+    return data
+
+
+def get_campaign_details(campaign_id: str) -> dict | None:
+    """Fetch details for a single campaign."""
+    return run_cli(["heyreach", "campaigns", "get", campaign_id, "--json"])
+
+
+def get_lead_status(linkedin_url: str) -> dict | None:
+    """Fetch lead status by LinkedIn URL."""
+    return run_cli(["heyreach", "leads", "get", "--linkedin-url", linkedin_url, "--json"])
+
+
+def parse_frontmatter(filepath: Path) -> tuple[dict, str] | tuple[None, str]:
+    """
+    Extract frontmatter dict and full file text.
+    Returns (frontmatter_dict, full_text) or (None, full_text).
+    """
+    try:
+        text = filepath.read_text(encoding="utf-8")
+    except OSError:
+        return None, ""
+
+    if not text.startswith("---"):
+        return None, text
+
+    end = text.find("---", 3)
+    if end == -1:
+        return None, text
+
+    fm_block = text[3:end].strip()
+    fm = {}
+    for line in fm_block.splitlines():
+        if ":" in line:
+            key, _, val = line.partition(":")
+            fm[key.strip()] = val.strip().strip('"').strip("'")
+    return fm, text
+
+
+def update_frontmatter_field(text: str, key: str, value: str) -> str:
+    """
+    Update or insert a frontmatter field. If the key exists, replace its value.
+    If not, insert it before the closing ---.
+    """
+    pattern = rf"^{re.escape(key)}:\s*.+$"
+    if re.search(pattern, text, flags=re.MULTILINE):
+        return re.sub(pattern, f"{key}: {value}", text, flags=re.MULTILINE)
+
+    # Insert before closing ---
+    first = text.find("---")
+    if first == -1:
+        return text
+    second = text.find("---", first + 3)
+    if second == -1:
+        return text
+
+    return text[:second] + f"{key}: {value}\n" + text[second:]
+
+
+def build_prospect_index(vault_root: Path) -> dict[str, Path]:
+    """
+    Build a lookup of LinkedIn URL -> prospect context.md path.
+    Also builds a name+company fallback index.
+    Returns dict mapping lookup keys to file paths.
+    """
+    index = {}
+    prospects_dir = vault_root / "pipeline" / "prospects"
+
+    if not prospects_dir.exists():
+        return index
+
+    for context_file in prospects_dir.rglob("context.md"):
+        fm, _ = parse_frontmatter(context_file)
+        if fm is None:
+            continue
+
+        # Index by LinkedIn URL (primary key)
+        linkedin = fm.get("linkedin", "").strip().rstrip("/")
+        if linkedin:
+            normalized = linkedin.lower()
+            index[normalized] = context_file
+
+        # Fallback: name+company
+        name = fm.get("name", "").strip().lower()
+        company = fm.get("company", "").strip().lower()
+        if name and company:
+            index[f"{name}|{company}"] = context_file
+
+    return index
+
+
+def find_prospect_file(
+    linkedin_url: str,
+    name: str,
+    company: str,
+    index: dict[str, Path],
+) -> Path | None:
+    """Look up a prospect file by LinkedIn URL or name+company."""
+    if linkedin_url:
+        normalized = linkedin_url.lower().rstrip("/")
+        if normalized in index:
+            return index[normalized]
+
+    if name and company:
+        key = f"{name.lower()}|{company.lower()}"
+        if key in index:
+            return index[key]
+
+    return None
+
+
+def sync_campaigns(
+    vault_root: Path,
+    campaign_filter: str | None = None,
+    dry_run: bool = False,
+) -> dict:
+    """
+    Main sync loop. Fetches campaigns, matches leads to prospects,
+    updates frontmatter.
+    """
+    stats = {"updated": 0, "skipped": 0, "not_found": 0, "errors": 0}
+
+    print("Fetching campaigns from HeyReach...")
+    campaigns = get_campaigns()
+    if not campaigns:
+        print("No campaigns found.")
+        return stats
+
+    # Filter by name if requested
+    if campaign_filter:
+        campaigns = [
+            c for c in campaigns
+            if campaign_filter.lower() in c.get("name", "").lower()
+        ]
+        if not campaigns:
+            print(f"No campaigns matching '{campaign_filter}'.")
+            return stats
+
+    print(f"Found {len(campaigns)} campaign(s).")
+
+    # Build prospect index
+    print("Indexing vault prospects...")
+    index = build_prospect_index(vault_root)
+    print(f"Indexed {len(index)} prospect entries.\n")
+
+    for campaign in campaigns:
+        campaign_name = campaign.get("name", "Unknown")
+        campaign_id = str(campaign.get("id", ""))
+        status = campaign.get("status", "unknown")
+
+        print(f"Campaign: {campaign_name} (id={campaign_id}, status={status})")
+
+        # Get campaign details (includes lead list)
+        details = get_campaign_details(campaign_id)
+        if details is None:
+            print(f"  Could not fetch details for campaign {campaign_id}")
+            stats["errors"] += 1
+            continue
+
+        leads = details.get("leads", details.get("contacts", []))
+        if not leads:
+            print("  No leads in this campaign.")
+            continue
+
+        print(f"  Processing {len(leads)} leads...")
+
+        for lead in leads:
+            linkedin_url = lead.get("linkedin_url", lead.get("linkedinUrl", ""))
+            lead_name = lead.get("name", lead.get("firstName", ""))
+            lead_company = lead.get("company", lead.get("companyName", ""))
+            lead_status = lead.get("status", "pending").lower()
+
+            # Map to our status values
+            mapped_status = STATUS_MAP.get(lead_status, lead_status)
+
+            # Find matching prospect
+            prospect_path = find_prospect_file(
+                linkedin_url, lead_name, lead_company, index
+            )
+
+            if prospect_path is None:
+                print(f"    NOT FOUND: {lead_name} ({lead_company})")
+                stats["not_found"] += 1
+                continue
+
+            rel = prospect_path.relative_to(vault_root)
+            fm, text = parse_frontmatter(prospect_path)
+
+            if fm is None:
+                print(f"    ERROR: no frontmatter in {rel}")
+                stats["errors"] += 1
+                continue
+
+            # Check if update is needed
+            current_status = fm.get("heyreach-status", "")
+            current_campaign = fm.get("heyreach-campaign", "")
+
+            if current_status == mapped_status and current_campaign == campaign_name:
+                stats["skipped"] += 1
+                continue
+
+            if dry_run:
+                print(f"    WOULD UPDATE: {rel}")
+                print(f"      heyreach-campaign: {campaign_name}")
+                print(f"      heyreach-status: {mapped_status}")
+                print(f"      heyreach-last-activity: {TODAY}")
+                stats["updated"] += 1
+                continue
+
+            # Apply updates
+            try:
+                updated = text
+                updated = update_frontmatter_field(updated, "heyreach-campaign", campaign_name)
+                updated = update_frontmatter_field(updated, "heyreach-status", mapped_status)
+                updated = update_frontmatter_field(updated, "heyreach-last-activity", TODAY)
+                updated = update_frontmatter_field(updated, "last-touched", TODAY)
+                prospect_path.write_text(updated, encoding="utf-8")
+                print(f"    UPDATED: {rel} ({mapped_status})")
+                stats["updated"] += 1
+            except OSError as e:
+                print(f"    ERROR writing {rel}: {e}", file=sys.stderr)
+                stats["errors"] += 1
+
+    return stats
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Sync HeyReach campaign data into vault prospect files."
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview changes without writing files",
+    )
+    parser.add_argument(
+        "--campaign",
+        type=str,
+        default=None,
+        help="Sync only campaigns matching this name (substring match)",
+    )
+    parser.add_argument(
+        "--vault-root",
+        type=str,
+        default=None,
+        help="Path to vault root (defaults to parent of _available/enrichment/)",
+    )
+    args = parser.parse_args()
+
+    if args.vault_root:
+        vault_root = Path(args.vault_root).resolve()
+    else:
+        vault_root = Path(__file__).resolve().parent.parent.parent
+
+    if not vault_root.exists():
+        print(f"Error: vault root not found: {vault_root}", file=sys.stderr)
+        sys.exit(1)
+
+    mode = "DRY RUN" if args.dry_run else "LIVE"
+    print(f"\n=== HeyReach Sync ({mode}) ===")
+    print(f"Vault: {vault_root}\n")
+
+    stats = sync_campaigns(
+        vault_root=vault_root,
+        campaign_filter=args.campaign,
+        dry_run=args.dry_run,
+    )
+
+    print(f"\n=== Summary ===")
+    print(f"  Updated:    {stats['updated']}")
+    print(f"  Skipped:    {stats['skipped']} (already current)")
+    print(f"  Not found:  {stats['not_found']} (no matching prospect)")
+    print(f"  Errors:     {stats['errors']}")
+
+
+if __name__ == "__main__":
+    main()

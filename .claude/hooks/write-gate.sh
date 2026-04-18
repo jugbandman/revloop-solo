@@ -1,13 +1,18 @@
-#!/bin/bash
-# write-gate.sh — two-level write gate enforcement
+#!/usr/bin/env bash
+# write-gate.sh — vault-level write gate enforcement
 #
-# Level 1 (Vault-level): Blocks ALL writes until Required Sources from
-#   ROOT-INDEX.md are loaded. This ensures global context (positioning,
-#   ICP, brand voice) is always present before any output is generated.
+# Blocks writes until Required Sources from ROOT-INDEX.md are loaded.
+# This ensures global context (positioning, ICP, brand voice) is always
+# present before any output is generated.
 #
-# Level 2 (Entity-level): When writing to entity subfolders (prospects/,
-#   customers/, deals/), also requires that the specific entity's context.md
-#   has been read this session.
+# Entity-level gate (requiring per-entity context.md before entity writes)
+# was removed in v0.2.0 — solo template is single-operator, no team mode.
+#
+# Graceful degradation: no-op if not running under Claude Code.
+
+if [ -z "$CLAUDE_PROJECT_DIR" ] && [ -z "$CLAUDE_CODE_SESSION" ]; then
+  exit 0
+fi
 
 TOOL_INPUT=$(cat)
 VAULT_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -30,13 +35,13 @@ fi
 
 # Never gate writes to session state, git internals, or hook config
 REL_PATH="${FILE_PATH#$VAULT_ROOT/}"
-if [[ "$REL_PATH" == .session/* ]] || [[ "$REL_PATH" == .git/* ]] || [[ "$REL_PATH" == .claude/* ]]; then
+if [[ "$REL_PATH" == .session/* ]] || [[ "$REL_PATH" == .git/* ]] || [[ "$REL_PATH" == .claude/* ]] || [[ "$REL_PATH" == .revloop/* ]]; then
   exit 0
 fi
 
 # ═══════════════════════════════════════════════════════════
-# LEVEL 1: Vault-level gate (ROOT-INDEX.md Required Sources)
-# ══════════════════════════════════════════��════════════════
+# Vault-level gate (ROOT-INDEX.md Required Sources)
+# ═══════════════════════════════════════════════════════════
 
 if [[ -f "$ROOT_INDEX" ]]; then
   # Extract required files (lines under ## Required Sources, stop at next ##)
@@ -51,7 +56,7 @@ if [[ -f "$ROOT_INDEX" ]]; then
     done <<< "$REQUIRED"
 
     if [[ ${#MISSING[@]} -gt 0 ]]; then
-      echo "[WRITE GATE] Write BLOCKED. Vault-level required sources not yet loaded:" >&2
+      echo "[WRITE GATE] Write BLOCKED. Required sources not yet loaded:" >&2
       for f in "${MISSING[@]}"; do
         echo "  - $f" >&2
       done
@@ -62,53 +67,5 @@ if [[ -f "$ROOT_INDEX" ]]; then
     fi
   fi
 fi
-
-# ═══════════════════════════════════════════════════════════
-# LEVEL 2: Entity-level gate (entity context.md)
-# ═══════════════════════════════════════════════════════════
-
-# Entity folders that require context.md loading before writes
-ENTITY_DIRS="prospects customers deals"
-
-for entity_dir in $ENTITY_DIRS; do
-  if [[ "$REL_PATH" == *${entity_dir}/* ]]; then
-    # Extract the entity name (subfolder after the entity dir)
-    AFTER_DIR="${REL_PATH#*${entity_dir}/}"
-    ENTITY_NAME=$(echo "$AFTER_DIR" | cut -d'/' -f1)
-
-    if [[ -z "$ENTITY_NAME" ]]; then
-      break
-    fi
-
-    # Find the entity dir prefix in the relative path
-    ENTITY_PREFIX="${REL_PATH%%${entity_dir}/*}${entity_dir}"
-
-    # The file being written might BE the context.md itself, allow that
-    CONTEXT_FILE="${ENTITY_PREFIX}/${ENTITY_NAME}/context.md"
-    if [[ "$REL_PATH" == "$CONTEXT_FILE" ]]; then
-      break
-    fi
-
-    # Check if this entity even has a context.md
-    CONTEXT_FULL_PATH="$VAULT_ROOT/$CONTEXT_FILE"
-    if [[ ! -f "$CONTEXT_FULL_PATH" ]]; then
-      echo "[WRITE GATE WARNING] No context.md found at ${CONTEXT_FILE}. Entity-level gate skipped." >&2
-      break
-    fi
-
-    # Check if context.md has been loaded this session
-    if [[ ! -f "$LOADED_FILE" ]] || ! grep -qF "$CONTEXT_FILE" "$LOADED_FILE"; then
-      echo "[WRITE GATE] Write BLOCKED. Entity context not loaded." >&2
-      echo "" >&2
-      echo "  Writing to: $REL_PATH" >&2
-      echo "  Required:   $CONTEXT_FILE" >&2
-      echo "" >&2
-      echo "Read the entity's context.md first, then retry the write." >&2
-      exit 1
-    fi
-
-    break
-  fi
-done
 
 exit 0

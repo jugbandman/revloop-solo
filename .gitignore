@@ -28,3 +28,6 @@ venv/
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
 .obsidian/graph.json
+
+# Self-onboarding state (per-operator, local only)
+.revloop/onboarding.json

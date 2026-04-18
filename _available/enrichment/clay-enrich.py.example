@@ -1,0 +1,498 @@
+#!/usr/bin/env python3
+"""
+clay-enrich.py - Orchestrate Clay enrichment for un-enriched leads.
+
+Scans pipeline/leads/ for entity files with enriched: false in frontmatter,
+fires clay-gtm-cli for each lead, and writes enrichment data back
+to the lead file.
+
+Usage:
+    python3 clay-enrich.py
+    python3 clay-enrich.py --dry-run
+    python3 clay-enrich.py --limit 5
+    python3 clay-enrich.py --table custom-table-name
+"""
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+from datetime import date, datetime
+from pathlib import Path
+
+
+DEFAULT_TABLE = "lead-enrichment"
+TODAY = date.today().isoformat()
+
+
+def resolve_vault_root(override: str | None = None) -> Path:
+    """Resolve the vault root directory."""
+    if override:
+        return Path(override).resolve()
+    return Path(__file__).resolve().parent.parent
+
+
+def check_clay_cli() -> bool:
+    """Verify clay-gtm-cli is installed and accessible."""
+    try:
+        result = subprocess.run(
+            ["clay", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        return result.returncode == 0
+    except FileNotFoundError:
+        return False
+    except subprocess.TimeoutExpired:
+        return False
+
+
+def parse_frontmatter(filepath: Path) -> tuple[dict | None, str]:
+    """
+    Extract frontmatter from a markdown file.
+
+    Returns (frontmatter_dict, body_text). Returns (None, "") if no
+    valid frontmatter block is found.
+    """
+    try:
+        text = filepath.read_text(encoding="utf-8")
+    except OSError:
+        return None, ""
+
+    if not text.startswith("---"):
+        return None, text
+
+    end = text.find("---", 3)
+    if end == -1:
+        return None, text
+
+    fm_block = text[3:end].strip()
+    body = text[end + 3:].lstrip("\n")
+
+    fm = {}
+    for line in fm_block.splitlines():
+        if ":" in line:
+            key, _, val = line.partition(":")
+            cleaned = val.strip().strip('"').strip("'")
+            fm[key.strip()] = cleaned
+
+    return fm, body
+
+
+def rebuild_file(filepath: Path, fm_updates: dict, body_append: str = "") -> None:
+    """
+    Read a file, update specific frontmatter keys, optionally append to body.
+    Preserves all existing frontmatter and body content.
+    """
+    text = filepath.read_text(encoding="utf-8")
+
+    if not text.startswith("---"):
+        return
+
+    end = text.find("---", 3)
+    if end == -1:
+        return
+
+    fm_block = text[3:end].strip()
+    body = text[end + 3:]
+
+    # Update frontmatter lines
+    new_lines = []
+    updated_keys = set()
+    for line in fm_block.splitlines():
+        if ":" in line:
+            key, _, _ = line.partition(":")
+            key_stripped = key.strip()
+            if key_stripped in fm_updates:
+                val = fm_updates[key_stripped]
+                if isinstance(val, bool):
+                    new_lines.append(f"{key_stripped}: {str(val).lower()}")
+                elif val is None or val == "null":
+                    new_lines.append(f"{key_stripped}: null")
+                elif isinstance(val, (int, float)):
+                    new_lines.append(f"{key_stripped}: {val}")
+                else:
+                    new_lines.append(f'{key_stripped}: "{val}"')
+                updated_keys.add(key_stripped)
+            else:
+                new_lines.append(line)
+        else:
+            new_lines.append(line)
+
+    # Add any new keys not already in frontmatter
+    for key, val in fm_updates.items():
+        if key not in updated_keys:
+            if isinstance(val, bool):
+                new_lines.append(f"{key}: {str(val).lower()}")
+            elif val is None or val == "null":
+                new_lines.append(f"{key}: null")
+            elif isinstance(val, (int, float)):
+                new_lines.append(f"{key}: {val}")
+            else:
+                new_lines.append(f'{key}: "{val}"')
+
+    rebuilt = "---\n" + "\n".join(new_lines) + "\n---" + body
+
+    if body_append:
+        rebuilt = rebuilt.rstrip("\n") + "\n\n" + body_append + "\n"
+
+    filepath.write_text(rebuilt, encoding="utf-8")
+
+
+def build_clay_payload(fm: dict) -> dict:
+    """Build the JSON payload for clay-gtm-cli from lead frontmatter."""
+    payload = {}
+
+    field_map = {
+        "name": "name",
+        "company": "company",
+        "title": "title",
+        "email": "email",
+        "linkedin": "linkedin",
+    }
+
+    for fm_key, payload_key in field_map.items():
+        val = fm.get(fm_key, "")
+        if val and val not in ("null", ""):
+            payload[payload_key] = val
+
+    return payload
+
+
+def fire_clay_enrichment(table: str, payload: dict, timeout: int = 120) -> dict | None:
+    """
+    Shell out to clay-gtm-cli to fire an enrichment request.
+
+    Returns the parsed JSON response, or None on failure.
+    """
+    payload_json = json.dumps(payload)
+    cmd = [
+        "clay", "fire",
+        "--table", table,
+        "--data", payload_json,
+        "--wait",
+        "--timeout", str(timeout),
+    ]
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout + 30,  # extra buffer beyond Clay's own timeout
+        )
+    except subprocess.TimeoutExpired:
+        return None
+    except FileNotFoundError:
+        return None
+
+    if result.returncode != 0:
+        log(f"  clay-gtm-cli error (exit {result.returncode}): {result.stderr.strip()}")
+        return None
+
+    # Parse JSON from stdout
+    stdout = result.stdout.strip()
+    if not stdout:
+        log("  clay-gtm-cli returned empty response")
+        return None
+
+    try:
+        return json.loads(stdout)
+    except json.JSONDecodeError as e:
+        log(f"  Failed to parse Clay response as JSON: {e}")
+        log(f"  Raw output: {stdout[:500]}")
+        return None
+
+
+def format_enrichment_body(data: dict) -> str:
+    """
+    Format Clay enrichment data as markdown sections to append to the lead file.
+    Handles partial data gracefully (writes what we got, skips what's missing).
+    """
+    sections = []
+
+    sections.append("## Clay Enrichment Results")
+    sections.append(f"_Enriched on {TODAY}_\n")
+
+    # Company overview
+    company_overview = data.get("company_overview") or data.get("companyOverview")
+    if company_overview:
+        sections.append("### Company Overview")
+        sections.append(str(company_overview))
+        sections.append("")
+
+    # Industry / size / funding
+    company_details = []
+    for key in ["industry", "company_size", "companySize", "headcount", "funding", "revenue"]:
+        val = data.get(key)
+        if val:
+            label = key.replace("_", " ").replace("company", "").strip().title()
+            company_details.append(f"- {label}: {val}")
+    if company_details:
+        sections.append("### Company Details")
+        sections.extend(company_details)
+        sections.append("")
+
+    # Signals
+    signals = data.get("signals") or data.get("ai_signals") or data.get("aiSignals")
+    if signals:
+        sections.append("### Signals")
+        if isinstance(signals, list):
+            for sig in signals:
+                if isinstance(sig, dict):
+                    name = sig.get("name", sig.get("signal", "Unknown"))
+                    detail = sig.get("detail", sig.get("description", ""))
+                    sections.append(f"- **{name}**: {detail}")
+                else:
+                    sections.append(f"- {sig}")
+        elif isinstance(signals, str):
+            sections.append(signals)
+        sections.append("")
+
+    # Tech stack
+    tech = data.get("tech_stack") or data.get("techStack") or data.get("technologies")
+    if tech:
+        sections.append("### Tech Stack")
+        if isinstance(tech, list):
+            for item in tech:
+                sections.append(f"- {item}")
+        elif isinstance(tech, str):
+            sections.append(tech)
+        sections.append("")
+
+    # LinkedIn activity
+    activity = data.get("linkedin_activity") or data.get("linkedinActivity")
+    if activity:
+        sections.append("### LinkedIn Activity")
+        if isinstance(activity, dict):
+            for k, v in activity.items():
+                label = k.replace("_", " ").title()
+                sections.append(f"- {label}: {v}")
+        elif isinstance(activity, str):
+            sections.append(activity)
+        sections.append("")
+
+    # Score reasoning
+    reasoning = data.get("reasoning") or data.get("score_reasoning")
+    if reasoning:
+        sections.append("### Score Reasoning")
+        sections.append(str(reasoning))
+        sections.append("")
+
+    # Outreach angle
+    angle = data.get("outreach_angle") or data.get("outreachAngle")
+    if angle:
+        sections.append("### Suggested Outreach Angle")
+        sections.append(str(angle))
+        sections.append("")
+
+    # Catch-all for unhandled keys
+    known_keys = {
+        "company_overview", "companyOverview", "industry", "company_size",
+        "companySize", "headcount", "funding", "revenue", "signals",
+        "ai_signals", "aiSignals", "tech_stack", "techStack", "technologies",
+        "linkedin_activity", "linkedinActivity", "reasoning", "score_reasoning",
+        "outreach_angle", "outreachAngle", "score", "tier", "email", "linkedin",
+        "name", "company", "title", "recommended_sender", "objection_to_prep_for",
+    }
+    extras = {k: v for k, v in data.items() if k not in known_keys and v}
+    if extras:
+        sections.append("### Additional Data")
+        for k, v in extras.items():
+            label = k.replace("_", " ").title()
+            sections.append(f"- **{label}**: {v}")
+        sections.append("")
+
+    return "\n".join(sections)
+
+
+def log(msg: str) -> None:
+    """Print a timestamped log message."""
+    ts = datetime.now().strftime("%H:%M:%S")
+    print(f"[{ts}] {msg}")
+
+
+def scan_and_enrich(
+    vault_root: Path,
+    table: str,
+    dry_run: bool = False,
+    limit: int | None = None,
+) -> dict:
+    """
+    Scan pipeline/leads/ for un-enriched entities and run Clay enrichment.
+
+    Returns a summary dict with counts.
+    """
+    stats = {"enriched": 0, "skipped": 0, "errors": 0, "already_enriched": 0}
+    leads_dir = vault_root / "pipeline" / "leads"
+
+    if not leads_dir.exists():
+        log(f"Warning: pipeline/leads/ directory not found at {leads_dir}")
+        return stats
+
+    lead_files = sorted(leads_dir.rglob("*.md"))
+    processed = 0
+
+    for filepath in lead_files:
+        # Skip index and non-entity files
+        if filepath.name.startswith("_"):
+            continue
+
+        rel = filepath.relative_to(vault_root)
+        fm, body = parse_frontmatter(filepath)
+
+        if fm is None:
+            continue
+
+        # Only process lead-stage entities
+        stage = fm.get("stage", "").lower()
+        if stage != "lead":
+            continue
+
+        enriched = fm.get("enriched", "false").lower()
+        if enriched == "true":
+            stats["already_enriched"] += 1
+            continue
+
+        # Check limit
+        if limit is not None and processed >= limit:
+            break
+
+        name = fm.get("name", filepath.stem)
+        company = fm.get("company", "unknown")
+        log(f"Processing: {name} at {company} ({rel})")
+
+        payload = build_clay_payload(fm)
+
+        if not payload.get("name"):
+            log(f"  SKIP (no name in frontmatter)")
+            stats["skipped"] += 1
+            continue
+
+        if dry_run:
+            log(f"  DRY RUN: would fire Clay enrichment")
+            log(f"  Payload: {json.dumps(payload, indent=2)}")
+            stats["enriched"] += 1
+            processed += 1
+            continue
+
+        # Fire Clay enrichment
+        log(f"  Firing clay enrichment (table: {table})...")
+        response = fire_clay_enrichment(table, payload)
+
+        if response is None:
+            log(f"  FAILED: no response from Clay (timeout or error)")
+            stats["errors"] += 1
+            processed += 1
+            continue
+
+        # Extract score from response
+        score = response.get("score")
+        if score is not None:
+            try:
+                score = int(score)
+            except (ValueError, TypeError):
+                score = None
+
+        # Build frontmatter updates
+        fm_updates = {
+            "enriched": True,
+            "last-touched": TODAY,
+        }
+
+        if score is not None:
+            fm_updates["clay-score"] = score
+
+        # Update email/linkedin if Clay found them and we didn't have them
+        for field in ["email", "linkedin"]:
+            clay_val = response.get(field)
+            existing_val = fm.get(field, "")
+            if clay_val and (not existing_val or existing_val in ("null", "")):
+                fm_updates[field] = clay_val
+
+        # Build body content from enrichment data
+        body_content = format_enrichment_body(response)
+
+        # Write updates back to file
+        try:
+            rebuild_file(filepath, fm_updates, body_content)
+            tier = response.get("tier", "?")
+            log(f"  ENRICHED: score={score}, tier={tier}")
+            stats["enriched"] += 1
+        except OSError as e:
+            log(f"  ERROR writing file: {e}")
+            stats["errors"] += 1
+
+        processed += 1
+
+    return stats
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Orchestrate Clay enrichment for un-enriched leads."
+    )
+    parser.add_argument(
+        "--table",
+        default=DEFAULT_TABLE,
+        help=f"Clay table name to fire against (default: {DEFAULT_TABLE})",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be enriched without firing Clay",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Only process the first N un-enriched leads",
+    )
+    parser.add_argument(
+        "--vault-root",
+        default=None,
+        help="Path to vault root (default: parent of _available/enrichment/)",
+    )
+    args = parser.parse_args()
+
+    vault_root = resolve_vault_root(args.vault_root)
+
+    # Pre-flight check
+    if not args.dry_run and not check_clay_cli():
+        print(
+            "Error: clay-gtm-cli is not installed or not in PATH.\n"
+            "Install it with: npm i -g clay-gtm-cli\n"
+            "Then configure your API key: clay auth login\n"
+            "See enrichment/README.md for full setup instructions.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    mode = "DRY RUN" if args.dry_run else "LIVE"
+    log(f"=== Clay Enrichment ({mode}) ===")
+    log(f"Vault: {vault_root}")
+    log(f"Table: {args.table}")
+    if args.limit:
+        log(f"Limit: {args.limit}")
+    print()
+
+    stats = scan_and_enrich(
+        vault_root=vault_root,
+        table=args.table,
+        dry_run=args.dry_run,
+        limit=args.limit,
+    )
+
+    print()
+    log("=== Summary ===")
+    log(f"  Enriched:          {stats['enriched']}")
+    log(f"  Already enriched:  {stats['already_enriched']}")
+    log(f"  Skipped:           {stats['skipped']}")
+    log(f"  Errors:            {stats['errors']}")
+
+
+if __name__ == "__main__":
+    main()
