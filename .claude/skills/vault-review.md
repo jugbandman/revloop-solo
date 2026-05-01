@@ -9,8 +9,8 @@ Comprehensive vault health diagnostic. Report only, never auto-fixes.
 ### 1. Detect Mode (inline, no agent needed)
 
 Check for `USER.md` at root (solo) or `_me/USER.md` (team). Set path prefixes:
-- Solo: `context/`, `pipeline/`, `people/`
-- Team: `c-context/`, `pipeline/`, `people/`
+- Solo: `60-Context/`, `80-Pipeline/`, `20-People/`
+- Team: `c-context/`, `80-Pipeline/`, `20-People/`
 
 ### 2. Spawn Scan Agents (parallel Haiku)
 
@@ -24,8 +24,8 @@ If available, run these 3 commands and return the output:
   Obsidian orphans
   Obsidian deadends
 For each, return the top 20 results and total count.
-Flag: orphans in pipeline/ or people/ as "PROBLEM".
-Skip: orphans in _imports/, scratch/, .session/.
+Flag: orphans in 80-Pipeline/ or 20-People/ as "PROBLEM".
+Skip: orphans in 00-Inbox/, 00-Inbox/scratch/, .session/.
 If Obsidian not running, return: "Obsidian CLI not available, skipped."
 ```
 
@@ -33,18 +33,18 @@ If Obsidian not running, return: "Obsidian CLI not available, skipped."
 ```
 Scan these directories and report what you find. Be concise.
 
-1. STALE ENTITIES: List all subfolders in pipeline/prospects/ and pipeline/deals/.
+1. STALE ENTITIES: List all subfolders in 80-Pipeline/prospects/ and 80-Pipeline/deals/.
    For each, read context.md frontmatter "updated" field.
    Flag any not updated in 14+ days. Return as: name | type | updated | days_stale
 
-2. STALE WIP: List files in scratch/wip/. Read frontmatter "paused" date.
+2. STALE WIP: List files in 00-Inbox/scratch/wip/. Read frontmatter "paused" date.
    7+ days = "stale", 30+ days = "abandoned". Return as: name | paused | days | status
 
 3. EMPTY FOLDERS: Check for non-example, non-index content in:
-   {context_path}/, playbooks/, knowledge/, pipeline/, people/, meetings/
+   {context_path}/, 40-Playbooks/, 50-Knowledge/, 80-Pipeline/, 20-People/, 70-Meetings/
    Return: folder | status (empty/has_content) | file_count
 
-4. UNPROCESSED IMPORTS: Count and list files in _imports/ with types.
+4. UNPROCESSED IMPORTS: Count and list files in 00-Inbox/ with types.
 ```
 
 **Agent C: "vault-system-scan"**
@@ -58,7 +58,7 @@ Run these checks and return results concisely:
    Read ++HOME/Recent Work.md, check if "This Week" table has entries within 7 days.
    Return: fresh/stale for each.
 
-3. HEALTH.MD CROSS-REF: Read _system/health.md.
+3. HEALTH.MD CROSS-REF: Read 90-System/system-docs/vault-health-report.md.
    Check: Does USER.md exist? Does git remote exist? (git remote -v)
    Flag any rows that say "Not configured" but the component actually exists.
    Return: list of discrepancies or "accurate".
@@ -121,4 +121,4 @@ Print the Sonnet agent's report directly. Do not add commentary.
 - Do not read entity files or folder contents in the main context
 - Do not auto-fix issues
 - Do not create report files in the vault
-- Do not edit _system/, _templates/, or CLAUDE.md
+- Do not edit 90-System/system-docs/, 90-System/templates/, or CLAUDE.md

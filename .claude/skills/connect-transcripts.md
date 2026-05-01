@@ -23,12 +23,12 @@ Get meeting transcripts flowing into the vault so `/process-transcripts` can sum
 3. Update `USER.md` Tools section with `Granola sync path: <path>`.
 4. Offer to edit `.mcp.json` to add a local filesystem MCP server scoped to that path (or skip if the user prefers the built-in `/transcript-sync` script — that script reads the path from `USER.md` and polls directly; no MCP required).
 5. **Verify.** Reuse the Setup Gate from `.claude/skills/transcript-sync.md`: confirm the path exists, readable, contains at least one file matching the Granola export pattern.
-6. Run `/transcript-sync` once. It should pull any existing transcripts into `meetings/inbox/` (create if missing).
+6. Run `/transcript-sync` once. It should pull any existing transcripts into `70-Meetings/inbox/` (create if missing).
 
 ## Step B: paste-to-inbox fallback
 
-1. Tell the user: *"Paste any transcript into a new file under `meetings/inbox/` with a name like `YYYY-MM-DD-company-topic.md`. Run `/process-transcripts` to summarize + extract action items + link to entities."*
-2. Offer to create `meetings/inbox/.gitkeep` so the folder exists.
+1. Tell the user: *"Paste any transcript into a new file under `70-Meetings/inbox/` with a name like `YYYY-MM-DD-company-topic.md`. Run `/process-transcripts` to summarize + extract action items + link to entities."*
+2. Offer to create `70-Meetings/inbox/.gitkeep` so the folder exists.
 
 ## Finish
 

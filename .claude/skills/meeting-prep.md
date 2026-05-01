@@ -34,9 +34,9 @@ Default: **Standard**. User can specify: `/meeting-prep quick` or `/meeting-prep
 Check the vault for existing context on every attendee and their company.
 
 **For each attendee:**
-1. Search `people/` (or `o-people/`) for existing entity files by name
-2. Search `meetings/` (or `o-transcripts/`) for past meetings mentioning their name
-3. Search `pipeline/` (or `c-gtm/pipeline/`) for their company in prospects/deals
+1. Search `20-People/` (or `o-20-People/`) for existing entity files by name
+2. Search `70-Meetings/` (or `o-transcripts/`) for past meetings mentioning their name
+3. Search `80-Pipeline/` (or `c-gtm/80-Pipeline/`) for their company in prospects/deals
 4. Search for any entity `context.md` related to their company
 
 **Produce a context map:**
@@ -97,9 +97,9 @@ For each selected attendee:
 
 Read vault context to frame the meeting:
 
-1. Read `context/icp.md` (or `c-context/icp.md`) — does this company fit?
-2. Read `context/offerings.md` (or `c-context/offerings.md`) — what's relevant to discuss?
-3. Read `context/positioning.md` (or `c-context/positioning.md`) — how do we differentiate?
+1. Read `60-Context/icp.md` (or `c-60-Context/icp.md`) — does this company fit?
+2. Read `60-Context/offerings.md` (or `c-60-Context/offerings.md`) — what's relevant to discuss?
+3. Read `60-Context/positioning.md` (or `c-60-Context/positioning.md`) — how do we differentiate?
 4. If entity exists: read their `context.md` for deal history, past conversations, pain points
 
 **Produce:**
@@ -153,7 +153,7 @@ Write the prep brief as a structured document:
 ```
 
 ### Save Location
-- Save to `meetings/` (or `c-workspace/`) as `YYYY-MM-DD-{company}-prep.md`
+- Save to `70-Meetings/` (or `c-workspace/`) as `YYYY-MM-DD-{company}-prep.md`
 - If new contacts were researched, create/update people files
 - If company research was done, update entity `context.md`
 

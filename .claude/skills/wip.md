@@ -80,7 +80,7 @@ You are resuming work on {task}. This is a RevLoop vault.
 The Resume Prompt section is the most important part. Write it as if briefing a colleague who just sat down. Be specific about file paths and next actions.
 ```
 
-Write the agent's output to `scratch/wip/YYYY-MM-DD-{slug}.md`.
+Write the agent's output to `00-Inbox/scratch/wip/YYYY-MM-DD-{slug}.md`.
 
 ### 4. Report (inline)
 Show: WIP saved, file location, next actions preview (3 lines max).
@@ -89,7 +89,7 @@ Show: WIP saved, file location, next actions preview (3 lines max).
 
 Spawn Haiku agent (model: "haiku"):
 ```
-Scan scratch/wip/ for .md files. For each, read only the frontmatter and the "Next Actions" section (first 3 lines).
+Scan 00-Inbox/scratch/wip/ for .md files. For each, read only the frontmatter and the "Next Actions" section (first 3 lines).
 Return as table: date | phase | next_action | days_since_paused
 Flag: 7+ days = "stale", 30+ days = "abandoned?"
 ```

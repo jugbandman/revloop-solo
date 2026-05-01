@@ -41,14 +41,14 @@ Collect via AskUserQuestion:
 
 **Solo:** Create `USER.md` at root with collected data, mode: solo, persona mapped from role.
 
-**Team:** Create `_me/USER.md` (gitignored), `CLIENT.md` from example, `_system/contributors.md`. Update `.gitignore`.
+**Team:** Create `_me/USER.md` (gitignored), `CLIENT.md` from example, `90-System/system-docs/contributors.md`. Update `.gitignore`.
 
 ### Step 4: Context Import (skippable)
 
 "Want to import context now?"
 - Paste LinkedIn URL → scrape to USER.md
-- Paste company URL → scrape to context/positioning.md
-- Drop files in _imports/ later
+- Paste company URL → scrape to 60-Context/positioning.md
+- Drop files in 00-Inbox/ later
 - Skip
 
 ### Step 5: Connections (skippable)
@@ -67,7 +67,7 @@ Write `.onboarding` JSON with started date, persona, mode, level 1, completed/sk
 
 ### Step 8: Welcome
 
-"You're set. Tomorrow run `/today` or `/morning-brief`. Drop files in `_imports/` anytime. Run `/get-started` again to see what's next."
+"You're set. Tomorrow run `/today` or `/morning-brief`. Drop files in `00-Inbox/` anytime. Run `/get-started` again to see what's next."
 
 ---
 
@@ -98,7 +98,7 @@ Run `/today` (which has its own efficiency pattern).
 **Option 2: Work on a deal or client**
 Spawn Haiku agent (model: "haiku"):
 ```
-List all subfolders in pipeline/prospects/ and pipeline/deals/.
+List all subfolders in 80-Pipeline/prospects/ and 80-Pipeline/deals/.
 For each, read context.md frontmatter for: name, status, updated.
 Return as table: name | type | status | last_updated | days_since_update
 Sort by most recently updated first.
@@ -109,9 +109,9 @@ Present the table, let user pick. Then read ONLY that entity's context.md.
 Spawn Haiku agent (model: "haiku"):
 ```
 Check these folders for content (non-example, non-index files):
-playbooks/, knowledge/, context/ (or c-context/), _templates/
+40-Playbooks/, 50-Knowledge/, 60-Context/ (or c-context/), 90-System/templates/
 Return: folder | file_count | empty_or_populated
-Also list any .example files in context/ that don't have a corresponding non-example version.
+Also list any .example files in 60-Context/ that don't have a corresponding non-example version.
 ```
 Present gaps, suggest what to build.
 
@@ -122,7 +122,7 @@ Invoke `/vault-review` (delegates to its own agent team).
 Invoke `/import-context` in gap-detection mode.
 
 **Option 6: Automate a task**
-Read `_system/health.md` (small file, inline). Show automation status. Suggest cron setups.
+Read `90-System/system-docs/vault-health-report.md` (small file, inline). Show automation status. Suggest cron setups.
 
 **Option 7: Learn to use the vault**
 Spawn Sonnet agent (model: "sonnet"):
@@ -130,19 +130,19 @@ Spawn Sonnet agent (model: "sonnet"):
 Assess this vault's maturity. Read these files:
 - USER.md (or _me/USER.md)
 - .onboarding
-- _system/health.md
+- 90-System/system-docs/vault-health-report.md
 
 Then count (using Glob, not reading contents):
-- Files in context/ (or c-context/)
-- Subfolders in people/
-- Subfolders in pipeline/deals/
-- Files in meetings/
+- Files in 60-Context/ (or c-context/)
+- Subfolders in 20-People/
+- Subfolders in 80-Pipeline/deals/
+- Files in 70-Meetings/
 - .onboarding.connections entries
 
 Apply these progression rules:
-Level 1→2: context/ has 1+ file AND people/ has 5+ entries
-Level 2→3: context/icp.md exists AND pipeline/deals/ has 1+ entity
-Level 3→4: connections has 2+ tools AND meetings/ has 5+ files
+Level 1→2: 60-Context/ has 1+ file AND 20-People/ has 5+ entries
+Level 2→3: 60-Context/icp.md exists AND 80-Pipeline/deals/ has 1+ entity
+Level 3→4: connections has 2+ tools AND 70-Meetings/ has 5+ files
 Level 4→5: custom skills exist OR autonomous runs configured
 
 Return:

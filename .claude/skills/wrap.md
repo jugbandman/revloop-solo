@@ -24,7 +24,7 @@ For each modified entity:
 - Who comes from USER.md identity
 - File column links to the actual deliverable
 
-### 4. Update _system/health.md
+### 4. Update 90-System/system-docs/vault-health-report.md
 If any automation was run or setup was completed, update the relevant row.
 
 ### 5. Commit and Push

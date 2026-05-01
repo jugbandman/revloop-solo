@@ -6,47 +6,37 @@ status: active
 tags: [navigation, home, moc]
 ---
 
+Master navigation hub for this vault. Start here when you're not sure where to go.
+
 # ++HOME
 
-> Master navigation hub for this vault. Start here.
+## About this vault
 
-## Quick Access
+RevLoop Solo, a daily operating system for solo sales operators. Markdown-first, AI-augmented, persona-aware.
 
-| Hub | Purpose |
-|-----|---------|
-| [[Recent Work]] | Work outputs, deliverables, session logs |
-| [[../meetings/\|Meetings]] | Meeting notes and transcripts |
-| [[../pipeline/\|Pipeline]] | Deals, prospects, closed |
-| [[../people/\|People]] | Contacts and stakeholders |
-| [[../context/\|Context]] | Company info, ICP, research |
-| [[../playbooks/\|Playbooks]] | Sales process, frameworks |
-| [[../scratch/\|Scratch]] | Brain dumps, quick captures |
+## Daily ops
 
-## Key Files
+- [[Recent Work]] — work outputs, deliverables, session logs
+- [[../USER|USER]] — your identity and preferences
+- [[../CLAUDE|CLAUDE]] — system prompt and protocol
 
-- [[../CLAUDE.md]] - System prompt / strategic brain
-- [[../USER.md]] - Your identity and preferences
-- [[../_system/FEATURES.md]] - Skills and agents
-- [[../_system/ROADMAP.md]] - Plan
+## Hubs
 
-## Vault Structure
+- [[../10-Customers/|Customers]]
+- [[../20-People/|People]]
+- [[../30-Workflows/Workflows, MOC|Workflows]]
+- [[../40-Playbooks/_index|Playbooks]]
+- [[../50-Knowledge/_index|Knowledge]]
+- [[../60-Context/|Context]]
+- [[../70-Meetings/|Meetings]]
+- [[../80-Pipeline/|Pipeline]]
+- [[../80-Projects/_README|Projects]]
 
-```
-++HOME/               <- You are here (navigation)
-context/              <- Company context (positioning, ICP, voice)
-pipeline/             <- Deals, prospects, closed
-  prospects/
-  deals/
-  closed/
-people/               <- Contacts, stakeholders
-meetings/             <- Meeting notes and transcripts
-playbooks/            <- Sales process, frameworks
-scratch/              <- Brain dumps, quick captures
-_imports/             <- Drop zone for docs, transcripts, CSVs
-_system/              <- Vault self-awareness
-_templates/           <- Note templates
-```
+## System
 
----
+- [[../90-System/system-docs/FEATURES|Features]] — skills and agents
+- [[../90-System/system-docs/vault-roadmap|Roadmap]]
+- [[../90-System/system-docs/vault-health-report|Health report]]
+- [[../999-Reports/Reports, MOC|Reports]]
 
-*This is the entry point. When in doubt, start here.*
+This is the entry point. When in doubt, start here.

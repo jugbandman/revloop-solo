@@ -18,17 +18,17 @@ Spawn ONE Haiku agent (model: "haiku"):
 Run these checks on the vault and return a concise report.
 
 MISPLACED FILES:
-- List any .md files directly in pipeline/ root (should be in prospects/, deals/, or closed/)
+- List any .md files directly in 80-Pipeline/ root (should be in prospects/, deals/, or closed/)
 - List any files in ++HOME/ that are NOT ++HOME.md or Recent Work.md
-- List any non-template files in _templates/ (files without "template" in the name or not .example)
+- List any non-template files in 90-System/templates/ (files without "template" in the name or not .example)
 
 STALE IMPORTS:
-- Count files in _imports/. For any older than 7 days (check mtime), flag them.
+- Count files in 00-Inbox/. For any older than 7 days (check mtime), flag them.
 
 HEALTH.MD ACCURACY:
-- Read _system/health.md
-- Check: does USER.md (or _me/USER.md) exist? If yes but health.md says "Not configured" for identity, flag it.
-- Check: does git remote exist? (git remote -v) If yes but health.md says "Not configured" for Git remote, flag it.
+- Read 90-System/system-docs/vault-health-report.md
+- Check: does USER.md (or _me/USER.md) exist? If yes but vault-health-report.md says "Not configured" for identity, flag it.
+- Check: does git remote exist? (git remote -v) If yes but vault-health-report.md says "Not configured" for Git remote, flag it.
 
 Return in this format:
 Misplaced: {count or "clean"}
@@ -44,7 +44,7 @@ If uncommitted changes exist:
   - Context files → "Update: context"
   - .claude/ files → "Update: skills/agents/hooks config"
   - Deliverables → "Add: deliverable"
-  - _system/ → "Update: system status"
+  - 90-System/system-docs/ → "Update: system status"
   - Mixed → "Sync: vault updates"
 - Commit with format: `[Type]: [Description]`
 

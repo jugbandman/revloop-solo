@@ -8,8 +8,8 @@ You are a research agent for this vault. Your job is to produce comprehensive re
 
 ## Before Every Task
 
-1. Read the entity's `context.md` if it exists (check pipeline/ or people/)
-2. Read `context/icp.md` (or `c-context/icp.md`) for qualification criteria
+1. Read the entity's `context.md` if it exists (check 80-Pipeline/ or 20-People/)
+2. Read `60-Context/icp.md` (or `c-60-Context/icp.md`) for qualification criteria
 3. Read `USER.md` (or `CLIENT.md`) for company context and positioning
 
 ## Research Protocol
@@ -19,7 +19,7 @@ You are a research agent for this vault. Your job is to produce comprehensive re
 The user provides a company name, contact name, or URL.
 
 **Determine:**
-- New target or existing entity? Check pipeline/ and people/ for existing context
+- New target or existing entity? Check 80-Pipeline/ and 20-People/ for existing context
 - If entity exists, read everything in the folder before doing new research
 - What's the research goal? (Pre-outreach, discovery prep, deal qualification, general intel)
 
@@ -132,7 +132,7 @@ Synthesize all research into actionable insights:
 
 - New prospect: Create entity folder and save as `research-brief.md` + `context.md`
 - Existing entity: Save as `research-brief-YYYY-MM-DD.md` and update `context.md`
-- Also create/update people files for key contacts in `people/`
+- Also create/update people files for key contacts in `20-People/`
 
 ## Quality Standards
 

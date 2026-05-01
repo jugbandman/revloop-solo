@@ -52,4 +52,4 @@ Every milestone skill:
 4. On success, flips `milestones.{name}.done = true`, sets `at` to today, persists.
 5. Returns control — the user runs `/start` again (or the parent invocation does).
 
-Full contract: `_system/milestone-skill-contract.md`.
+Full contract: `90-System/system-docs/milestone-skill-contract.md`.

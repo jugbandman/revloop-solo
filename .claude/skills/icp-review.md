@@ -4,20 +4,20 @@ Build or refine the Ideal Customer Profile. Define target segments, buyer person
 
 ## Prerequisites
 
-- Read `context/icp.md` if it exists (for review/refinement)
-- Read `context/offerings.md` for what we sell and who it helps
+- Read `60-Context/icp.md` if it exists (for review/refinement)
+- Read `60-Context/offerings.md` for what we sell and who it helps
 
 ## Workflow
 
 ### 1. Understand Current State
 
 Ask the user:
-- What do you sell? (Product/service, if not already in context/offerings.md)
-- Who have you sold to before? (Check pipeline/closed/ for existing customer data)
+- What do you sell? (Product/service, if not already in 60-Context/offerings.md)
+- Who have you sold to before? (Check 80-Pipeline/closed/ for existing customer data)
 - What market hypotheses do you have?
 - What segments are you considering?
 
-If `context/icp.md` exists, read it and present the current ICP for review.
+If `60-Context/icp.md` exists, read it and present the current ICP for review.
 
 ### 2. Identify Target Segment
 
@@ -63,7 +63,7 @@ Three dimensions:
 
 ### 5. Document the ICP
 
-Save the complete ICP to `context/icp.md` with:
+Save the complete ICP to `60-Context/icp.md` with:
 - Target segment definition
 - Buyer personas
 - Qualification criteria (fit, urgency, ability to act)

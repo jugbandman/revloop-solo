@@ -11,9 +11,9 @@ Take a meeting transcript, extract a structured summary with action items, and s
 ### 1. Receive the Transcript
 
 Accept the transcript from:
-- A file path (check meetings/ or _imports/ or user-provided path)
+- A file path (check 70-Meetings/ or 00-Inbox/ or user-provided path)
 - Pasted text from the user
-- A file dropped into _imports/
+- A file dropped into 00-Inbox/
 
 Ask the user (if not obvious):
 - Who was on the call? (Names, titles, companies)
@@ -70,20 +70,20 @@ If this is a sales-related call, analyze:
 ### 5. Save Output
 
 Save the processed transcript to:
-- `meetings/YYYY-MM-DD-{company}-{meeting-type}.md`
+- `70-Meetings/YYYY-MM-DD-{company}-{meeting-type}.md`
 
 If tied to an entity, check whether the entity folder exists:
 
 **Entity folder exists:**
 - Update `context.md` with new insights from this meeting
-- For any new contacts not yet in the folder, create `{firstname-lastname}.md` using `_templates/prospect.md`, populated with what is known from the transcript
+- For any new contacts not yet in the folder, create `{firstname-lastname}.md` using `90-System/templates/prospect.md`, populated with what is known from the transcript
 - Link the transcript note from the entity's `context.md`
 
 **Entity folder does not exist:**
 - Determine correct stage from context (leads vs. prospects vs. deals)
 - Create the entity folder under the appropriate pipeline stage
-- Create `context.md` using `_templates/context.md`, populating company info, source (transcript), pain points, and initial signals from the transcript
-- Create `{firstname-lastname}.md` for each contact on the call using `_templates/prospect.md`
+- Create `context.md` using `90-System/templates/context.md`, populating company info, source (transcript), pain points, and initial signals from the transcript
+- Create `{firstname-lastname}.md` for each contact on the call using `90-System/templates/prospect.md`
 - Link the transcript from the new `context.md`
 
 **People file rules:**

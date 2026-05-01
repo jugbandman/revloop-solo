@@ -25,7 +25,7 @@ This vault runs on three surfaces. Work correctly in each.
 |---|---|---|---|
 | **Claude Code** | Hooks, slash commands, full fidelity | — | — |
 | **Claude Desktop cowork** | File access, agentic flows | Hooks, slash commands | Follow sacred-sources checklist manually; use `DESKTOP-GUIDE.md` starter prompt |
-| **Plain editor (Obsidian, VS Code)** | Markdown rendering, manual workflow | Automation | Use this file + `_system/` docs as the playbook |
+| **Plain editor (Obsidian, VS Code)** | Markdown rendering, manual workflow | Automation | Use this file + `90-System/system-docs/` as the playbook |
 
 Detect the surface by checking env: if `$CLAUDE_PROJECT_DIR` or `$CLAUDE_CODE_SESSION` is set → Claude Code. Otherwise assume cowork or plain editor.
 
@@ -34,9 +34,9 @@ Detect the surface by checking env: if `$CLAUDE_PROJECT_DIR` or `$CLAUDE_CODE_SE
 Before generating any outbound copy, deliverable, or entity write, confirm these files are loaded this session:
 
 - [ ] `USER.md` (operator identity)
-- [ ] `context/positioning.md`
-- [ ] `context/icp.md`
-- [ ] `context/brand-voice.md`
+- [ ] `60-Context/positioning.md`
+- [ ] `60-Context/icp.md`
+- [ ] `60-Context/brand-voice.md`
 
 **In Claude Code** `.claude/hooks/write-gate.sh` enforces this mechanically.
 **In Claude Desktop cowork / plain editor** you (the AI) enforce this by reading the four files first. Don't skip.
@@ -72,34 +72,41 @@ Read `USER.md` for who you're working with. It has identity, persona, autonomy s
 
 ## Persona Modes
 
-Persona overlay manifests live in `_personas/`. Each persona file specifies which folders to create, which `_available/` skills to promote into `.claude/skills/`, which preconfigured features to ignore, and which preferences to set. Activation is currently manual — read the persona file matching `USER.md`'s `persona` field, then make the moves it specifies. A future `/select-persona` skill will automate this.
+Persona overlay manifests live in `90-System/personas/`. Each persona file specifies which folders to create, which `30-Workflows/skills-examples/skills/` skills to promote into `.claude/skills/`, which preconfigured features to ignore, and which preferences to set. Activation is currently manual, read the persona file matching `USER.md`'s `persona` field, then make the moves it specifies. A future `/select-persona` skill will automate this.
 
-## Path map
+## Folder Map
 
-| Concern | Path |
-|---|---|
-| Operator identity / voice | `USER.md` |
-| Positioning, ICP, offerings, voice, competitors | `context/` |
-| Prospects, deals, closed, customers | `pipeline/` |
-| People / stakeholders | `people/` |
-| Meeting transcripts + notes | `meetings/` |
-| Your process and playbooks | `playbooks/` |
-| Reference material (frameworks, articles) | `knowledge/` |
-| WIP scratch | `scratch/` |
-| Drop zone for bulk imports | `_imports/` |
-| Vault self-awareness | `_system/` |
-| Note templates (sacred) | `_templates/` |
-| Opt-in features (move to `.claude/skills/` to enable) | `_available/` |
-| Onboarding state machine | `.revloop/onboarding.json` (gitignored, per-operator) |
-| Post-close customer-success entities (CS persona overlay) | `customers/` |
-| Workflow doctrine (the strategy layer; skills are the executable layer) | `workflows/` |
-| Archive for inactive content | `_bin/` |
-| Auto-generated Dataview rollups | `_reports/` |
-| Persona overlay manifests | `_personas/` |
+```
+revloop-solo/
+├── ++HOME/                    # MOC navigation hub
+├── 00-Inbox/                  # Drop zone for transcripts, CSVs, decks; daily scratch
+├── 10-Customers/              # Customer entities (CS persona overlay)
+├── 20-People/                 # Contacts and stakeholders
+├── 30-Workflows/              # Workflow doctrine + skills examples
+│   └── skills-examples/       # Opt-in skills the operator can promote into .claude/skills/
+├── 40-Playbooks/              # YOUR process docs (discovery, deal stages, outreach, SLA)
+├── 50-Knowledge/              # Reference material (frameworks, articles, methodologies)
+├── 60-Context/                # Identity (positioning, ICP, brand voice, offerings, tool stack)
+├── 70-Meetings/               # Meeting notes and transcripts
+├── 80-Pipeline/               # Sales pipeline (sales-leader persona; CS persona ignores)
+├── 80-Projects/               # Big-work scaffolding (AI Advisor pattern)
+├── 90-System/                 # Vault self-awareness
+│   ├── personas/              # Persona overlay manifests
+│   ├── scripts/               # Health checks and maintenance scripts
+│   ├── system-docs/           # ADRs, FEATURES, vault-health-report, vault-roadmap, etc.
+│   └── templates/             # Note templates
+├── 900-Bin/                   # Archive for inactive content
+├── 999-Reports/               # Auto-generated Dataview rollups
+├── CLAUDE.md                  # This file
+├── USER.md                    # Operator identity
+├── README.md                  # Public-facing tour
+├── DESKTOP-GUIDE.md           # Claude Desktop cowork guide
+└── ROOT-INDEX.md              # Sacred sources index (load-bearing)
+```
 
 ## Sacred — never auto-edit
 
-`CLAUDE.md`, `USER.md`, `_system/`, `_templates/`, `.claude/`, `.revloop/onboarding.json`. Suggest changes, never make them silently.
+`CLAUDE.md`, `USER.md`, `90-System/`, `90-System/templates/`, `.claude/`, `.revloop/onboarding.json`. Suggest changes, never make them silently.
 
 ## Tool priority (optional Obsidian CLI)
 
@@ -130,12 +137,12 @@ If Obsidian is open and the Obsidian CLI is installed (v1.12.7+), use it for vau
 
 ## Skills
 
-Run with `/skill-name` in Claude Code. See `_system/FEATURES.md` for the full catalog.
+Run with `/skill-name` in Claude Code. See `90-System/system-docs/FEATURES.md` for the full catalog.
 
 **Milestone skills (the self-onboarding spine):**
 - `/start` — Continuous router. Picks up wherever the vault left off.
-- `/capture-voice` — Calibrate authentic voice → `context/brand-voice.md`
-- `/capture-business` — Positioning, offerings, ICP, competitors → `context/*.md`
+- `/capture-voice` — Calibrate authentic voice → `60-Context/brand-voice.md`
+- `/capture-business` — Positioning, offerings, ICP, competitors → `60-Context/*.md`
 - `/connect-transcripts` — Wire Granola or paste-to-inbox for meeting transcripts
 
 **Daily operations:**
@@ -153,37 +160,36 @@ Run with `/skill-name` in Claude Code. See `_system/FEATURES.md` for the full ca
 
 ## Agents
 
-- `my-voice` — Writes/reviews in your authentic voice (reads USER.md + `context/brand-voice.md`)
+- `my-voice` — Writes/reviews in your authentic voice (reads USER.md + `60-Context/brand-voice.md`)
 - `researcher` — Deep company / contact research
 - `sales-coach` — Reviews business cases, deal strategy, champion-selling
 - `deal-researcher` — Deal-specific research; pulls transcript history + pipeline context
 
-## Opt-in features (`_available/`)
+## Opt-in features (`30-Workflows/skills-examples/`)
 
-Additional skills, enrichment scripts, automations, and dashboards live in `_available/`. Each subfolder has a README explaining what it does and how to enable it. Ship lean; grow as the operator needs more.
+Additional skills, enrichment scripts, automations, and dashboards live in `30-Workflows/skills-examples/`. Each subfolder has a README explaining what it does and how to enable it. Ship lean; grow as the operator needs more.
 
 ## Vault evolution
 
-This vault is a living system. Help the operator build, maintain, and improve it over time. Never modify agents, CLAUDE.md, skills, hooks, or `_system/` files without explicit approval. Suggest improvements, don't silently make them.
+This vault is a living system. Help the operator build, maintain, and improve it over time. Never modify agents, CLAUDE.md, skills, hooks, or `90-System/` files without explicit approval. Suggest improvements, don't silently make them.
 
 Proactive awareness:
 - Empty folders that should have content → suggest `/import-context`
 - Stale entities (not updated in 14+ days) → surface in `/today`
 - Missing sacred sources → flag before outbound work (hook or AI-enforced)
-- Unprocessed files in `_imports/` → offer to route them
+- Unprocessed files in `00-Inbox/` → offer to route them
 
 Logging:
 - Update `++HOME/Recent Work.md` with deliverables and system changes each session
-- Update `_system/health.md` when setup or automation status changes
-- Update `_system/FEATURES.md` when skills or agents are added/modified
+- Update `90-System/system-docs/vault-health-report.md` when setup or automation status changes
+- Update `90-System/system-docs/FEATURES.md` when skills or agents are added/modified
 - Log significant changes in commit messages with `[system]` prefix
 
 ## Full deep dives
 
-- `_system/self-onboarding-architecture.md` — the DNA of this template
-- `_system/milestone-skill-contract.md` — how milestone skills interoperate with `.revloop/onboarding.json`
-- `_system/FEATURES.md` — full feature catalog
-- `_system/health.md` — setup checklist + automation status
-- `_system/fork-this-vault.md` — how to fork this as YOUR template
-- `_system/architecture-decisions/` — ADRs explaining why things are the way they are
+- `90-System/system-docs/self-onboarding-architecture.md` — the DNA of this template
+- `90-System/system-docs/milestone-skill-contract.md` — how milestone skills interoperate with `.revloop/onboarding.json`
+- `90-System/system-docs/FEATURES.md` — full feature catalog
+- `90-System/system-docs/vault-health-report.md` — setup checklist + automation status
+- `90-System/system-docs/architecture-decisions/` — ADRs explaining why things are the way they are
 - `DESKTOP-GUIDE.md` — for operators using Claude Desktop cowork

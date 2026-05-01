@@ -61,7 +61,7 @@ if [[ -f "$ROOT_INDEX" ]]; then
         echo "  - $f" >&2
       done
       echo "" >&2
-      echo "Read these files from context/ first, then retry the write." >&2
+      echo "Read these files from 60-Context/ first, then retry the write." >&2
       echo "These are listed in ROOT-INDEX.md under Required Sources." >&2
       exit 1
     fi

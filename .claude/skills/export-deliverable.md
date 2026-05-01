@@ -5,7 +5,7 @@ Clean a markdown document for delivery. Strip internal formatting, remove wiki-l
 ## Prerequisites
 
 - Read the source file before processing
-- Read `context/brand-voice.md` to verify voice compliance
+- Read `60-Context/brand-voice.md` to verify voice compliance
 
 ## Workflow
 

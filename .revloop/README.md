@@ -41,7 +41,7 @@ Shows the schema for a fresh state file at level 0. Use this as a reference if y
 
 ## For Future Developers
 
-When adding a new milestone skill, consult `_system/milestone-skill-contract.md` for the expected interface. Your skill must:
+When adding a new milestone skill, consult `90-System/system-docs/milestone-skill-contract.md` for the expected interface. Your skill must:
 - Read `onboarding.json` (create at level 0 if missing)
 - Detect if its milestone is already complete (idempotent)
 - Write to designated context files

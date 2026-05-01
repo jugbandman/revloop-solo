@@ -38,10 +38,10 @@ For each selected transcript:
    - Example: `2026-04-03-Dmitry-Arbor-x-Tim-Shisler-x-Andy-Carlson.md` becomes `2026-04-03-dmitry-tim-andy.md`
    - Use first names only, alphabetical by last name, skip company suffixes
 3. Copy the full file content (frontmatter + notes + transcript) into `o-transcripts/internal/`
-4. Update the frontmatter `participants` links to use `o-people/` paths instead of personal vault paths:
-   - `[[40-People/dmitry-koltunov]]` becomes `[[o-people/client/dmitry-koltunov]]`
-   - `[[40-People/tim-shisler]]` becomes `[[o-people/operators/tim-shisler]]`
-   - `[[Andy Carlson]]` becomes `[[o-people/operators/andy-carlson]]`
+4. Update the frontmatter `participants` links to use `o-20-People/` paths instead of personal vault paths:
+   - `[[40-People/dmitry-koltunov]]` becomes `[[o-20-People/client/dmitry-koltunov]]`
+   - `[[40-People/tim-shisler]]` becomes `[[o-20-People/operators/tim-shisler]]`
+   - `[[Andy Carlson]]` becomes `[[o-20-People/operators/andy-carlson]]`
    - Map any other known people similarly
 5. Report what was imported
 

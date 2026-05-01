@@ -52,17 +52,19 @@ Run `/start` again anytime to see your next milestone.
 | Folder | Purpose |
 |--------|---------|
 | `++HOME/` | Navigation hub and recent work tracker |
-| `context/` | Your positioning, ICP, brand voice, offerings, competitors |
-| `pipeline/` | Prospects, deals, closed customers |
-| `people/` | Contacts and stakeholders |
-| `meetings/` | Meeting notes and transcripts |
-| `playbooks/` | Your sales process and frameworks |
-| `knowledge/` | Reference material (MEDDIC, SCQA, articles) |
-| `scratch/` | Brain dumps, quick captures |
-| `_imports/` | Drop zone (put files here, Claude routes them) |
-| `_templates/` | Note templates (sacred, never modified) |
-| `_available/` | Inspiration gallery — opt-in skills, enrichment, automation, dashboard |
-| `_system/` | Vault self-awareness: deps, ADRs, health, changelog |
+| `00-Inbox/` | Drop zone (put files here, Claude routes them) plus daily scratch |
+| `10-Customers/` | Customer entities (CS persona overlay) |
+| `20-People/` | Contacts and stakeholders |
+| `30-Workflows/` | Workflow doctrine and opt-in skills examples |
+| `40-Playbooks/` | Your sales process and frameworks |
+| `50-Knowledge/` | Reference material (MEDDIC, SCQA, articles) |
+| `60-Context/` | Your positioning, ICP, brand voice, offerings, competitors |
+| `70-Meetings/` | Meeting notes and transcripts |
+| `80-Pipeline/` | Prospects, deals, closed |
+| `80-Projects/` | Big-work scaffolding (AI Advisor pattern) |
+| `90-System/` | Vault self-awareness, personas, scripts, system-docs, templates |
+| `900-Bin/` | Archive for inactive content |
+| `999-Reports/` | Auto-generated Dataview rollups |
 
 ## Daily workflow
 
@@ -89,7 +91,7 @@ Run `/start` again anytime to see your next milestone.
 | `/wrap` | End-of-task closure |
 | `/wip` | Save/resume work-in-progress |
 
-More live in `_available/skills/` — move one into `.claude/skills/` to enable it.
+More live in `30-Workflows/skills-examples/skills/`. Move one into `.claude/skills/` to enable it.
 
 ## Agents
 
@@ -102,8 +104,8 @@ More live in `_available/skills/` — move one into `.claude/skills/` to enable 
 
 - **GitHub** — clone or download the ZIP. No remote required for the vault to work.
 - **Claude Code** — Claude Desktop cowork or any other AI + a markdown editor is a valid path. See [DESKTOP-GUIDE.md](./DESKTOP-GUIDE.md).
-- **Obsidian** — VS Code, Cursor, or plain vim all work. Obsidian CLI and plugins are optional enhancers documented in `_system/OBSIDIAN-DEPS.md`.
-- **API keys** — MCP servers (Gmail, Granola, Calendar) are all optional. See `_system/CREDENTIAL-SETUP.md` to wire the ones you want.
+- **Obsidian** — VS Code, Cursor, or plain vim all work. Obsidian CLI and plugins are optional enhancers documented in `90-System/system-docs/OBSIDIAN-DEPS.md`.
+- **API keys** — MCP servers (Gmail, Granola, Calendar) are all optional. See `90-System/system-docs/CREDENTIAL-SETUP.md` to wire the ones you want.
 
 ## Personas
 
@@ -118,12 +120,12 @@ CLAUDE.md routes tone and priorities based on your persona.
 
 ## What's possible (grow into)
 
-Solo ships lean. As you need more, enable features from `_available/`:
+Solo ships lean. As you need more, enable features from `30-Workflows/skills-examples/`:
 
-- **Clay-style enrichment** (`_available/enrichment/`) — batch-enrich prospects via Clay, LinkedIn, HeyReach
-- **n8n automations** (`_available/automation/`) — wire vault events to workflows
-- **React dashboard** (`_available/dashboard/`) — visualize pipeline over your markdown
-- **Opt-in skills** (`_available/skills/`) — `account-plan`, `outreach`, `prospect-research`, `proposal-draft`, `discovery-prep`, `review-actions`
+- **Clay-style enrichment** (`30-Workflows/skills-examples/enrichment/`) batch-enrich prospects via Clay, LinkedIn, HeyReach
+- **n8n automations** (`30-Workflows/skills-examples/automation/`) wire vault events to workflows
+- **React dashboard** (`30-Workflows/skills-examples/dashboard/`) visualize pipeline over your markdown
+- **Opt-in skills** (`30-Workflows/skills-examples/skills/`) `account-plan`, `outreach`, `prospect-research`, `proposal-draft`, `discovery-prep`, `review-actions`
 
 ## Support
 
@@ -133,4 +135,4 @@ Built by [Remix Revenue](https://remixrevenue.co).
 
 ---
 
-**Under the hood:** See [`_system/self-onboarding-architecture.md`](./_system/self-onboarding-architecture.md) for why this template works the way it does. See [`_system/fork-this-vault.md`](./_system/fork-this-vault.md) to fork this as YOUR template.
+**Under the hood:** See [`90-System/system-docs/self-onboarding-architecture.md`](./90-System/system-docs/self-onboarding-architecture.md) for why this template works the way it does.
