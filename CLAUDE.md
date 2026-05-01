@@ -43,6 +43,21 @@ Before generating any outbound copy, deliverable, or entity write, confirm these
 
 If any sacred source doesn't exist yet, run the appropriate milestone skill first: `/start` → `/capture-business` → `/capture-voice`.
 
+## Sensitive Data Routing
+
+If `USER.md` declares `sensitive-data: route-to-openai: true`, content tagged with `#sensitive` or written to paths matching `*/sensitive/` must use the OpenAI adapter, not Claude. Default off. Use this when working with regulated data (security findings, PII, contract details) that compliance prohibits from Claude. The skill or workflow handling sensitive content is responsible for the routing decision; the operator is responsible for tagging content correctly.
+
+## Obsidian as Primary Surface
+
+This vault is operated through Obsidian + Claude Code by default. The Obsidian CLI is the preferred tool for vault-aware operations: backlinks, search, orphan detection, frontmatter writes, plugin commands. Use `Obsidian <command>` via Bash. Filesystem tools are fallbacks for bulk operations. ADR-004 keeps editor-agnostic mode supported (Claude Desktop, plain editors), but this clone is configured for Obsidian-first.
+
+Common commands:
+- `Obsidian backlinks path=<path>` — check backlinks before moving/renaming
+- `Obsidian search query=<text>` — vault-wide search
+- `Obsidian orphans` / `Obsidian deadends` — find disconnected notes
+- `Obsidian unresolved` — find broken wikilinks
+- `Obsidian property:set name=<n> value=<v> path=<p>` — set frontmatter
+
 ## Identity and persona awareness
 
 Read `USER.md` for who you're working with. It has identity, persona, autonomy settings, and preferences. Persona (from USER.md) changes how you prioritize and communicate:
@@ -53,6 +68,11 @@ Read `USER.md` for who you're working with. It has identity, persona, autonomy s
 | **Sales Leader** | Team performance, process, forecasting | Push proactive over reactive, flag scattered time |
 | **Sales Manager** | Deal coaching, rep development | Tactical coaching, pattern recognition across deals |
 | **AE** | Deal execution, prospecting, pipeline | Prep + follow-through, never let a thread drop |
+| **Customer Success** | Customer health, adoption, expansion | Don't let a customer thread drop, surface adoption signals, defend against churn |
+
+## Persona Modes
+
+Persona overlay manifests live in `_personas/`. Each persona file specifies which folders to create, which `_available/` skills to promote into `.claude/skills/`, which preconfigured features to ignore, and which preferences to set. Activation is currently manual — read the persona file matching `USER.md`'s `persona` field, then make the moves it specifies. A future `/select-persona` skill will automate this.
 
 ## Path map
 
@@ -71,6 +91,11 @@ Read `USER.md` for who you're working with. It has identity, persona, autonomy s
 | Note templates (sacred) | `_templates/` |
 | Opt-in features (move to `.claude/skills/` to enable) | `_available/` |
 | Onboarding state machine | `.revloop/onboarding.json` (gitignored, per-operator) |
+| Post-close customer-success entities (CS persona overlay) | `customers/` |
+| Workflow doctrine (the strategy layer; skills are the executable layer) | `workflows/` |
+| Archive for inactive content | `_bin/` |
+| Auto-generated Dataview rollups | `_reports/` |
+| Persona overlay manifests | `_personas/` |
 
 ## Sacred — never auto-edit
 

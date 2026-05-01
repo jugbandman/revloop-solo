@@ -10,7 +10,7 @@ Your identity file. Run `/get-started` to create this interactively, or copy thi
 | Email | {add email} |
 | Role | {add role} |
 | Company | {add company} |
-| Persona | {add: founder / sales-leader / sales-manager / ae} |
+| Persona | {add: founder / sales-leader / sales-manager / ae / customer-success} |
 | Mode | {add: solo / team} |
 
 ## Autonomy
@@ -38,3 +38,4 @@ What AI can do without asking:
 | Capture method | {add: keyboard / voice / both} |
 | CRM | {add: hubspot / attio / salesforce / none} |
 | Transcript tool | {add: granola / fireflies / gong / none} |
+| Sensitive data | {add: route-to-openai: true / false} |
